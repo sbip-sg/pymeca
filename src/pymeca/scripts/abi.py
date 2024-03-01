@@ -12,7 +12,7 @@ contract \
 --contract-type dao
 2. All contracts
 python abi.py \
---abi-directory ../tcontracts_abi \
+--abi-directory ../contracts_abi \
 all-contracts \
 --dao-file-path \
 ../../../meca-contracts/src/contracts/MecaContract.sol \

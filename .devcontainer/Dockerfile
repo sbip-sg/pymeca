@@ -51,3 +51,5 @@ RUN export NVM_DIR="${HOME}/.nvm" && \. "$NVM_DIR/nvm.sh" && \
 RUN pip3 install poetry
 # install pymeca
 RUN poetry config virtualenvs.create false
+
+RUN apt-get install -y python-is-python3

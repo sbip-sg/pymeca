@@ -698,7 +698,7 @@ class MecaActiveActor(MecaActor):
         return self.get_tower_contract(
         ).functions.getTowerFee(
             towerAddress=tower_address,
-            aize=size,
+            size=size,
             blockTimeoutLimit=block_timeout_limit
         ).call()
 
