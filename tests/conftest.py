@@ -1,16 +1,16 @@
-import pytest
 import pathlib
 import json
 import subprocess
+import random
 import web3
+from eth_account import Account
+import pytest
 import pymeca.dao
 import pymeca.host
 import pymeca.tower
 import pymeca.task
 import pymeca.user
 import pymeca.utils
-from eth_account import Account
-import random
 
 
 @pytest.fixture(scope="session")
@@ -99,6 +99,7 @@ def GANAHE_SERVER_SCRIPT_PATH():
     tests_dir = pathlib.Path(__file__).absolute().parent
     return (
         tests_dir.parent /
+        "meca-contracts" /
         "src" /
         "ganache" /
         'index.js'
@@ -166,6 +167,7 @@ def clean_setup(
 def CONTRACTS_DIRECTORY():
     return (
         pathlib.Path(__file__).absolute().parent.parent /
+        "meca-contracts" /
         "src" /
         "contracts"
     ).resolve()

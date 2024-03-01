@@ -1,12 +1,12 @@
-from eth_account import Account
-import web3
 import pathlib
-from solcx import compile_source
 import logging
-import multiformats_cid
 import secrets
 import random
 import json
+import web3
+from solcx import compile_source
+from eth_account import Account
+import multiformats_cid
 
 logger = logging.getLogger(__name__)
 

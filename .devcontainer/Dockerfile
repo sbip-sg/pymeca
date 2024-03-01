@@ -4,7 +4,7 @@ FROM ubuntu:22.04
 # LABEL about the custom image
 LABEL maintainer="dancioc@nus.edu.sg"
 LABEL version="0.1"
-LABEL description="This is a custom Docker Image for MECA EVM contracts"
+LABEL description="This is a custom Docker Image for pymeca"
 
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
@@ -27,11 +27,17 @@ RUN apt-get install -y python3 python3-pip
 RUN apt-get install -y solc
 
 # install python packages web3/py-solc-x cid jupyter and poetry
-RUN pip3 install web3[tester] && \
-    pip install py-solc-x && \
-    pip3 install py-multiformats-cid && \
-    pip3 install jupyterlab && \
-    pip3 install poetry
+#RUN pip3 install web3[tester] && \
+#    pip3 install py-solc-x && \
+#    pip3 install py-multiformats-cid && \
+#    pip3 install jupyterlab && \
+#    pip3 install poetry && \
+#    pip3 install pytest && \
+#    pip3 install pytest-cov && \
+#    pip3 install myst-nb && \
+#    pip3 install sphinx-rtd-theme && \
+#    pip3 install sphinx-autodoc-typehints && \
+#    pip3 install sphinx-autoapi
 
 # install npm -> nodejs -> npm
 ARG NODEJS_VERSION=20.11.1
@@ -40,3 +46,8 @@ RUN export NVM_DIR="${HOME}/.nvm" && \. "$NVM_DIR/nvm.sh" && \
     nvm install ${NODEJS_VERSION} && \
     nvm use ${NODEJS_VERSION} && \
     nvm install-latest-npm
+
+# install poetry
+RUN pip3 install poetry
+# install pymeca
+RUN poetry config virtualenvs.create false

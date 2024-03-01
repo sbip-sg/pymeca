@@ -1,5 +1,5 @@
-import web3
 import logging
+import web3
 import pymeca.pymeca
 import pymeca.utils
 

@@ -1,9 +1,10 @@
 import logging
-import argparse
 import json
 import subprocess
 import random
+import os
 import web3
+import argparse
 import pymeca.utils
 import deploy
 
@@ -151,6 +152,11 @@ def execute_action(
     """
     logger.info("Starting the ganache server")
     accounts = ganache_accounts()
+    config_dir = os.path.dirname(args.accounts_file_path)
+    os.makedirs(
+        config_dir,
+        exist_ok=True
+    )
     with open(args.accounts_file_path, "w", encoding="utf-8") as f:
         json.dump(accounts, f, ensure_ascii=False, indent=4)
     args.private_key = accounts["meca_dao"]["private_key"]
@@ -207,14 +213,19 @@ def main():
 """
 python3 ganache.py \
 --port 9000 \
---ganache-server-script-path ../../ganache/index.js \
+--ganache-server-script-path ../../../meca-contracts/src/ganache/index.js \
 --accounts_file_path ../../config/accounts.json \
 --dao-address-file-path ../dao_contract_address.txt \
---dao-file-path ../../contracts/MecaContract.sol \
---scheduler-file-path ../../contracts/SchedulerContract.sol \
---host-file-path ../../contracts/HostContract.sol \
---task-file-path ../../contracts/TaskContract.sol \
---tower-file-path ../../contracts/TowerContract.sol \
+--dao-file-path \
+../../../meca-contracts/src/contracts/MecaContract.sol \
+--scheduler-file-path \
+../../../meca-contracts/src/contracts/SchedulerContract.sol \
+--host-file-path \
+../../../meca-contracts/src/contracts/HostContract.sol \
+--tower-file-path \
+../../../meca-contracts/src/contracts/TowerContract.sol \
+--task-file-path \
+../../../meca-contracts/src/contracts/TaskContract.sol \
 --scheduler-fee 100 \
 --host-register-fee 100 \
 --host-initial-stake 100 \

@@ -273,6 +273,6 @@ dist
 .pnp.*
 
 # accounts file
-config/accounts.json
+src/config/accounts.json
 
 package-lock.json

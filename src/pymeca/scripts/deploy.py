@@ -1,8 +1,8 @@
 import logging
-import pymeca.utils
 import argparse
-import pymeca.dao
 import web3
+import pymeca.dao
+import pymeca.utils
 
 logger = logging.getLogger(__name__)
 
@@ -247,6 +247,18 @@ def get_parser(
         required=True,
         action="store"
     )
+    args_contract_constructor(
+        parser=parser,
+        DEFAULT_SCHEDULER_FEE=DEFAULT_SCHEDULER_FEE,
+        DEFAULT_HOST_REGISTER_FEE=DEFAULT_HOST_REGISTER_FEE,
+        DEFAULT_HOST_INITIAL_STAKE=DEFAULT_HOST_INITIAL_STAKE,
+        DEFAULT_HOST_TASK_REGISTER_FEE=DEFAULT_HOST_TASK_REGISTER_FEE,
+        DEFAULT_HOST_FAILED_TASK_PENALTY=DEFAULT_HOST_FAILED_TASK_PENALTY,
+        DEFAULT_TOWER_INITIAL_STAKE=DEFAULT_TOWER_INITIAL_STAKE,
+        DEFAULT_TOWER_HOST_REQUEST_FEE=DEFAULT_TOWER_HOST_REQUEST_FEE,
+        DEFAULT_TOWER_FAILED_TASK_PENALTY=DEFAULT_TOWER_FAILED_TASK_PENALTY,
+        DEFAULT_TASK_ADDITION_FEE=DEFAULT_TASK_ADDITION_FEE
+    )
     action_subparsers = parser.add_subparsers(
         title="actions",
         description="Actions to perform",
@@ -290,18 +302,6 @@ def get_parser(
     args_add_contracts_info(
         parser=all_contracts_parser,
         DEFAULT_CONTRACT_NAMES=DEFAULT_CONTRACT_NAMES
-    )
-    args_contract_constructor(
-        parser=parser,
-        DEFAULT_SCHEDULER_FEE=DEFAULT_SCHEDULER_FEE,
-        DEFAULT_HOST_REGISTER_FEE=DEFAULT_HOST_REGISTER_FEE,
-        DEFAULT_HOST_INITIAL_STAKE=DEFAULT_HOST_INITIAL_STAKE,
-        DEFAULT_HOST_TASK_REGISTER_FEE=DEFAULT_HOST_TASK_REGISTER_FEE,
-        DEFAULT_HOST_FAILED_TASK_PENALTY=DEFAULT_HOST_FAILED_TASK_PENALTY,
-        DEFAULT_TOWER_INITIAL_STAKE=DEFAULT_TOWER_INITIAL_STAKE,
-        DEFAULT_TOWER_HOST_REQUEST_FEE=DEFAULT_TOWER_HOST_REQUEST_FEE,
-        DEFAULT_TOWER_FAILED_TASK_PENALTY=DEFAULT_TOWER_FAILED_TASK_PENALTY,
-        DEFAULT_TASK_ADDITION_FEE=DEFAULT_TASK_ADDITION_FEE
     )
     return parser
 
@@ -439,5 +439,54 @@ def main():
     execute_action(args)
 
 
+"""
+Ussage:
+1. One contract
+python deploy.py \
+--dao-address-file-path ../dao_contract_address.txt \
+--endpoint-uri "http://localhost:9000" \
+--private-key \
+"0xcd072cd8be6f9f62ac4c09c28206e7e35594aa6b342f5d0a3a5e4842fab428f7" \
+--scheduler-fee 100 \
+--host-register-fee 100 \
+--host-initial-stake 100 \
+--host-task-register-fee 100 \
+--host-failed-task-penalty 100 \
+--tower-initial-stake 100 \
+--tower-host-request-fee 100 \
+--tower-failed-task-penalty 100 \
+--task-addition-fee 100 \
+contract \
+--contract-file-path \
+../../../meca-contracts/src/contracts/MecaContract.sol \
+--contract-name MecaDaoContract \
+--contract-type dao
+2. All contracts
+python deploy.py \
+--dao-address-file-path ../dao_contract_address.txt \
+--endpoint-uri "http://localhost:9000" \
+--private-key \
+"0xcd072cd8be6f9f62ac4c09c28206e7e35594aa6b342f5d0a3a5e4842fab428f7" \
+--scheduler-fee 100 \
+--host-register-fee 100 \
+--host-initial-stake 100 \
+--host-task-register-fee 100 \
+--host-failed-task-penalty 100 \
+--tower-initial-stake 100 \
+--tower-host-request-fee 100 \
+--tower-failed-task-penalty 100 \
+--task-addition-fee 100 \
+all-contracts \
+--dao-file-path \
+../../../meca-contracts/src/contracts/MecaContract.sol \
+--scheduler-file-path \
+../../../meca-contracts/src/contracts/SchedulerContract.sol \
+--host-file-path \
+../../../meca-contracts/src/contracts/HostContract.sol \
+--tower-file-path \
+../../../meca-contracts/src/contracts/TowerContract.sol \
+--task-file-path \
+../../../meca-contracts/src/contracts/TaskContract.sol
+"""
 if __name__ == "__main__":
     main()

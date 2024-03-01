@@ -1,6 +1,6 @@
+import logging
 from eth_account import Account
 import web3
-import logging
 import pymeca.utils
 
 logger = logging.getLogger(__name__)

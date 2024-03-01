@@ -1,6 +1,6 @@
-import web3
 import pathlib
 import logging
+import web3
 import pymeca.utils
 import pymeca.pymeca
 

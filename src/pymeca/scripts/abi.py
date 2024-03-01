@@ -1,22 +1,16 @@
 import pathlib
 import logging
-import pymeca.utils
 import argparse
 import os
 import json
+import pymeca.utils
+import deploy
 
 
 logger = logging.getLogger(__name__)
 
 
 ABI_NAMES = pymeca.utils.ABI_NAMES
-DEFAULT_FILE_NAMES = {
-    "dao": "MecaContract.sol",
-    "scheduler": "SchedulerAbstract.sol",
-    "host": "HostAbstract.sol",
-    "task": "TaskAbstract.sol",
-    "tower": "TowerAbstract.sol"
-}
 DEFAULT_CONTRACT_NAMES = {
     "dao": "MecaDaoContract",
     "scheduler": "MecaSchedulerAbstractContract",
@@ -53,7 +47,6 @@ def compile_abi(
 def get_parser(
     ABI_DIRECTORY: str,
     ABI_NAMES: dict,
-    DEFAULT_FILE_NAMES: dict,
     DEFAULT_CONTRACT_NAMES: dict
 ) -> argparse.ArgumentParser:
     r"""
@@ -116,93 +109,9 @@ def get_parser(
         "all-contracts",
         help="Compile the ABI of all contracts"
     )
-    all_contracts_parser.add_argument(
-        "--contracts-directory",
-        dest="contracts_directory",
-        help="Path to the contracts directory",
-        type=str,
-        required=True,
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--dao-file-name",
-        dest="dao_file_name",
-        help="The dao contract file name",
-        type=str,
-        default=DEFAULT_FILE_NAMES["dao"],
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--dao-contract-name",
-        dest="dao_contract_name",
-        help="The dao contract name",
-        type=str,
-        default=DEFAULT_CONTRACT_NAMES["dao"],
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--scheduler-file-name",
-        dest="scheduler_file_name",
-        help="The scheduler contract file name",
-        type=str,
-        default=DEFAULT_FILE_NAMES["scheduler"],
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--scheduler-contract-name",
-        dest="scheduler_contract_name",
-        help="The scheduler contract name",
-        type=str,
-        default=DEFAULT_CONTRACT_NAMES["scheduler"],
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--host-file-name",
-        dest="host_file_name",
-        help="The host contract file name",
-        type=str,
-        default=DEFAULT_FILE_NAMES["host"],
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--host-contract-name",
-        dest="host_contract_name",
-        help="The host contract name",
-        type=str,
-        default=DEFAULT_CONTRACT_NAMES["host"],
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--task-file-name",
-        dest="task_file_name",
-        help="The task contract file name",
-        type=str,
-        default=DEFAULT_FILE_NAMES["task"],
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--task-contract-name",
-        dest="task_contract_name",
-        help="The task contract name",
-        type=str,
-        default=DEFAULT_CONTRACT_NAMES["task"],
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--tower-file-name",
-        dest="tower_file_name",
-        help="The tower contract file name",
-        type=str,
-        default=DEFAULT_FILE_NAMES["tower"],
-        action="store"
-    )
-    all_contracts_parser.add_argument(
-        "--tower-contract-name",
-        dest="tower_contract_name",
-        help="The tower contract name",
-        type=str,
-        default=DEFAULT_CONTRACT_NAMES["tower"],
-        action="store"
+    deploy.args_add_contracts_info(
+        parser=all_contracts_parser,
+        DEFAULT_CONTRACT_NAMES=DEFAULT_CONTRACT_NAMES
     )
     return parser
 
@@ -226,50 +135,34 @@ def execute_action(
             abi_directory=args.abi_directory
         )
     elif args.action == "all-contracts":
-        args.contracts_directory = pathlib.Path(args.contracts_directory)
         compile_abi(
-            contract_file_path=str(
-                args.contracts_directory /
-                args.dao_file_name
-            ),
+            contract_file_path=args.dao_file_path,
             contract_name=args.dao_contract_name,
             contract_type="dao",
             abi_directory=args.abi_directory
         )
         compile_abi(
-            contract_file_path=str(
-                args.contracts_directory /
-                args.scheduler_file_name
-            ),
+            contract_file_path=args.scheduler_file_path,
             contract_name=args.scheduler_contract_name,
             contract_type="scheduler",
             abi_directory=args.abi_directory
         )
         compile_abi(
-            contract_file_path=str(
-                args.contracts_directory /
-                args.host_file_name
-            ),
+            contract_file_path=args.host_file_path,
             contract_name=args.host_contract_name,
             contract_type="host",
             abi_directory=args.abi_directory
         )
         compile_abi(
-            contract_file_path=(
-                args.contracts_directory /
-                args.task_file_name
-            ),
-            contract_name=args.task_contract_name,
-            contract_type="task",
+            contract_file_path=args.tower_file_path,
+            contract_name=args.tower_contract_name,
+            contract_type="tower",
             abi_directory=args.abi_directory
         )
         compile_abi(
-            contract_file_path=str(
-                args.contracts_directory /
-                args.tower_file_name
-            ),
-            contract_name=args.tower_contract_name,
-            contract_type="tower",
+            contract_file_path=args.task_file_path,
+            contract_name=args.task_contract_name,
+            contract_type="task",
             abi_directory=args.abi_directory
         )
     else:
@@ -285,7 +178,6 @@ def get_default_parser() -> argparse.ArgumentParser:
     return get_parser(
         ABI_DIRECTORY=ABI_DIRECTORY,
         ABI_NAMES=ABI_NAMES,
-        DEFAULT_FILE_NAMES=DEFAULT_FILE_NAMES,
         DEFAULT_CONTRACT_NAMES=DEFAULT_CONTRACT_NAMES
     )
 
@@ -296,5 +188,35 @@ def main():
     execute_action(args)
 
 
+"""
+Example of use:
+1. One contract
+python abi.py \
+--abi-directory ../contracts_abi \
+contract \
+--contract-file-path \
+../../../meca-contracts/src/contracts/MecaContract.sol \
+--contract-name MecaDaoContract \
+--contract-type dao
+2. All contracts
+python abi.py \
+--abi-directory ../tcontracts_abi \
+all-contracts \
+--dao-file-path \
+../../../meca-contracts/src/contracts/MecaContract.sol \
+--dao-contract-name MecaDaoContract \
+--scheduler-file-path \
+../../../meca-contracts/src/contracts/SchedulerAbstract.sol \
+--scheduler-contract-name MecaSchedulerAbstractContract \
+--host-file-path \
+../../../meca-contracts/src/contracts/HostAbstract.sol \
+--host-contract-name MecaHostAbstractContract \
+--tower-file-path \
+../../../meca-contracts/src/contracts/TowerAbstract.sol \
+--tower-contract-name MecaTowerAbstractContract \
+--task-file-path \
+../../../meca-contracts/src/contracts/TaskAbstract.sol \
+--task-contract-name MecaTaskAbstractContract
+"""
 if __name__ == "__main__":
     main()

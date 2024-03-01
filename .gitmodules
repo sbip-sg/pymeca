@@ -1,0 +1,3 @@
+[submodule "meca-contracts"]
+	path = meca-contracts
+	url = https://github.com/sbip-sg/meca_contracts.git
