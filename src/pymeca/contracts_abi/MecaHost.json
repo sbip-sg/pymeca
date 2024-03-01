@@ -1,0 +1,409 @@
+[
+    {
+        "stateMutability": "payable",
+        "type": "fallback"
+    },
+    {
+        "inputs": [],
+        "name": "FAILED_TASK_PENALTY",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "HOST_INITIAL_STAKE",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "HOST_REGISTER_FEE",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "TASK_REGISTER_FEE",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "addStake",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "ipfsSha256",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockTimeout",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "fee",
+                "type": "uint256"
+            }
+        ],
+        "name": "addTask",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "clear",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "deleteHost",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "ipfsSha256",
+                "type": "bytes32"
+            }
+        ],
+        "name": "deleteTask",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "hostAddress",
+                "type": "address"
+            }
+        ],
+        "name": "getHostBlockTimeoutLimit",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "hostAddress",
+                "type": "address"
+            }
+        ],
+        "name": "getHostPublicKey",
+        "outputs": [
+            {
+                "internalType": "bytes32[2]",
+                "name": "",
+                "type": "bytes32[2]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "hostAddress",
+                "type": "address"
+            }
+        ],
+        "name": "getHostStake",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getHosts",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "address payable",
+                        "name": "owner",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bytes32[2]",
+                        "name": "eccPublicKey",
+                        "type": "bytes32[2]"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "blockTimeoutLimit",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "stake",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct MecaHostAbstractContract.Host[]",
+                "name": "",
+                "type": "tuple[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "hostAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "ipfsSha256",
+                "type": "bytes32"
+            }
+        ],
+        "name": "getTaskBlockTimeout",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "hostAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "ipfsSha256",
+                "type": "bytes32"
+            }
+        ],
+        "name": "getTaskFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+            {
+                "internalType": "address payable",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "hostAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "userAddress",
+                "type": "address"
+            }
+        ],
+        "name": "penaltyForFailedTask",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32[2]",
+                "name": "publicKey",
+                "type": "bytes32[2]"
+            },
+            {
+                "internalType": "uint256",
+                "name": "blockTimeoutLimit",
+                "type": "uint256"
+            }
+        ],
+        "name": "registerAsHost",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "schedulerContractAddress",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "newSchedulerContractAddress",
+                "type": "address"
+            }
+        ],
+        "name": "setSchedulerContractAddress",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "newBlockTimeoutLimit",
+                "type": "uint256"
+            }
+        ],
+        "name": "updateBlockTimeoutLimit",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32[2]",
+                "name": "newPublicKey",
+                "type": "bytes32[2]"
+            }
+        ],
+        "name": "updatePublicKey",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "ipfsSha256",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "newBlockTimeout",
+                "type": "uint256"
+            }
+        ],
+        "name": "updateTaskBlockTimeout",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "ipfsSha256",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "uint256",
+                "name": "newFee",
+                "type": "uint256"
+            }
+        ],
+        "name": "updateTaskFee",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "widthdrawStake",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "stateMutability": "payable",
+        "type": "receive"
+    }
+]
