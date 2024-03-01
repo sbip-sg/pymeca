@@ -1,3 +1,55 @@
+r"""
+The current scipts is a CLI which help to deploy the MECA contracts
+on the blockchain.
+
+Ussage:
+1. One contract
+python deploy.py \
+--dao-address-file-path ../dao_contract_address.txt \
+--endpoint-uri "http://localhost:9000" \
+--private-key \
+"0xcd072cd8be6f9f62ac4c09c28206e7e35594aa6b342f5d0a3a5e4842fab428f7" \
+--scheduler-fee 100 \
+--host-register-fee 100 \
+--host-initial-stake 100 \
+--host-task-register-fee 100 \
+--host-failed-task-penalty 100 \
+--tower-initial-stake 100 \
+--tower-host-request-fee 100 \
+--tower-failed-task-penalty 100 \
+--task-addition-fee 100 \
+contract \
+--contract-file-path \
+../../../meca-contracts/src/contracts/MecaContract.sol \
+--contract-name MecaDaoContract \
+--contract-type dao
+2. All contracts
+python deploy.py \
+--dao-address-file-path ../dao_contract_address.txt \
+--endpoint-uri "http://localhost:9000" \
+--private-key \
+"0xcd072cd8be6f9f62ac4c09c28206e7e35594aa6b342f5d0a3a5e4842fab428f7" \
+--scheduler-fee 100 \
+--host-register-fee 100 \
+--host-initial-stake 100 \
+--host-task-register-fee 100 \
+--host-failed-task-penalty 100 \
+--tower-initial-stake 100 \
+--tower-host-request-fee 100 \
+--tower-failed-task-penalty 100 \
+--task-addition-fee 100 \
+all-contracts \
+--dao-file-path \
+../../../meca-contracts/src/contracts/MecaContract.sol \
+--scheduler-file-path \
+../../../meca-contracts/src/contracts/SchedulerContract.sol \
+--host-file-path \
+../../../meca-contracts/src/contracts/HostContract.sol \
+--tower-file-path \
+../../../meca-contracts/src/contracts/TowerContract.sol \
+--task-file-path \
+../../../meca-contracts/src/contracts/TaskContract.sol
+"""
 import logging
 import argparse
 import web3
@@ -14,22 +66,54 @@ DEFAULT_CONTRACT_NAMES = {
     "tower": "MecaTowerContract",
     "task": "MecaTaskContract"
 }
+r"""The default contract names"""
 DEFAULT_DAO_ADDRESS_FILE_PATH = str(pymeca.dao.DEFAULT_DAO_ADDRESS_FILE_PATH)
+r"""The default DAO address file path"""
 DEFAULT_SCHEDULER_FEE = 10
+r"""The default scheduler fee"""
 DEFAULT_HOST_REGISTER_FEE = 10
+r"""The default host register fee"""
 DEFAULT_HOST_INITIAL_STAKE = 100
+r"""The default host initial stake"""
 DEFAULT_HOST_TASK_REGISTER_FEE = 5
+r"""The default host task register fee"""
 DEFAULT_HOST_FAILED_TASK_PENALTY = 8
+r"""The default host failed task penalty"""
 DEFAULT_TOWER_INITIAL_STAKE = 100
+r"""The default tower initial stake"""
 DEFAULT_TOWER_HOST_REQUEST_FEE = 10
+r"""The default tower host request fee"""
 DEFAULT_TOWER_FAILED_TASK_PENALTY = 8
+r"""The default tower failed task penalty"""
 DEFAULT_TASK_ADDITION_FEE = 5
+r"""The default task addition fee"""
 
 
 def args_add_contracts_info(
     parser: argparse.ArgumentParser,
     DEFAULT_CONTRACT_NAMES: dict
 ) -> None:
+    r"""
+    Add contracts info to the parser like path and name.
+
+    Args:
+        parser : The parser.
+        DEFAULT_CONTRACT_NAMES : Default contract names.
+
+    CLI:
+        parser [options]
+            options:
+                --dao-file-path DAO_FILE_PATH
+                --dao-contract-name DAO_CONTRACT_NAME
+                --scheduler-file-path SCHEDULER_FILE_PATH
+                --scheduler-contract-name SCHEDULER_CONTRACT_NAME
+                --host-file-path HOST_FILE_PATH
+                --host-contract-name HOST_CONTRACT_NAME
+                --tower-file-path TOWER_FILE_PATH
+                --tower-contract-name TOWER_CONTRACT_NAME
+                --task-file-path TASK_FILE_PATH
+                --task-contract-name TASK_CONTRACT_NAME
+    """
     parser.add_argument(
         "--dao-file-path",
         dest="dao_file_path",
@@ -124,6 +208,34 @@ def args_contract_constructor(
     DEFAULT_TOWER_FAILED_TASK_PENALTY: int,
     DEFAULT_TASK_ADDITION_FEE: int
 ) -> None:
+    r"""
+    Add contract constructor arguments to the parser.
+
+    Args:
+        parser : The parser.
+        DEFAULT_SCHEDULER_FEE : Default scheduler fee.
+        DEFAULT_HOST_REGISTER_FEE : Default host register fee.
+        DEFAULT_HOST_INITIAL_STAKE : Default host initial stake.
+        DEFAULT_HOST_TASK_REGISTER_FEE : Default host task register fee.
+        DEFAULT_HOST_FAILED_TASK_PENALTY : Default host failed task penalty.
+        DEFAULT_TOWER_INITIAL_STAKE : Default tower initial stake.
+        DEFAULT_TOWER_HOST_REQUEST_FEE : Default tower host request fee.
+        DEFAULT_TOWER_FAILED_TASK_PENALTY : Default tower failed task penalty.
+        DEFAULT_TASK_ADDITION_FEE : Default task addition fee.
+
+    CLI:
+        parser [options]
+            options:
+                --scheduler-fee SCHEDULER_FEE
+                --host-register-fee HOST_REGISTER_FEE
+                --host-initial-stake HOST_INITIAL_STAKE
+                --host-task-register-fee HOST_TASK_REGISTER_FEE
+                --host-failed-task-penalty HOST_FAILED_TASK_PENALTY
+                --tower-initial-stake TOWER_INITIAL_STAKE
+                --tower-host-request-fee TOWER_HOST_REQUEST_FEE
+                --tower-failed-task-penalty TOWER_FAILED_TASK_PENALTY
+                --task-addition-fee TASK_ADDITION_FEE
+    """
     parser.add_argument(
         "--scheduler-fee",
         dest="scheduler_fee",
@@ -212,7 +324,59 @@ def get_parser(
     DEFAULT_TASK_ADDITION_FEE: int
 ) -> argparse.ArgumentParser:
     r"""
-    Get parser
+    Get deploy CLI parser.
+
+    Args:
+        DEFAULT_DAO_ADDRESS_FILE_PATH : Default DAO address file path.
+        DEFAULT_CONTRACT_NAMES : Default contract names.
+        DEFAULT_SCHEDULER_FEE : Default scheduler fee.
+        DEFAULT_HOST_REGISTER_FEE : Default host register fee.
+        DEFAULT_HOST_INITIAL_STAKE : Default host initial stake.
+        DEFAULT_HOST_TASK_REGISTER_FEE : Default host task register fee.
+        DEFAULT_HOST_FAILED_TASK_PENALTY : Default host failed task penalty.
+        DEFAULT_TOWER_INITIAL_STAKE : Default tower initial stake.
+        DEFAULT_TOWER_HOST_REQUEST_FEE : Default tower host request fee.
+        DEFAULT_TOWER_FAILED_TASK_PENALTY : Default tower failed task penalty.
+        DEFAULT_TASK_ADDITION_FEE : Default task addition fee.
+
+    Returns:
+        argparse.ArgumentParser : The parser.
+
+    CLI:
+        parser env_options [constructors] {contract,all-contracts} [options]
+            env_options:
+                --dao-address-file-path DAO_ADDRESS_FILE_PATH
+                --endpoint-uri ENDPOINT_URI
+                --private-key PRIVATE
+            [constructors]
+                --scheduler-fee SCHEDULER_FEE
+                --host-register-fee HOST_REGISTER_FEE
+                --host-initial-stake HOST_INITIAL_STAKE
+                --host-task-register-fee HOST_TASK_REGISTER_FEE
+                --host-failed-task-penalty HOST_FAILED_TASK_PENALTY
+                --tower-initial-stake TOWER_INITIAL_STAKE
+                --tower-host-request-fee TOWER_HOST_REQUEST_FEE
+                --tower-failed-task-penalty TOWER_FAILED_TASK_PENALTY
+                --task-addition-fee TASK_ADDITION_FEE
+
+        parser env_options [constructors] contract [options]
+            options:
+                --contract-file-path CONTRACT_FILE_PATH
+                --contract-name CONTRACT_NAME
+                --contract-type CONTRACT_TYPE
+
+        parser env_options [constructors] all-contracts [options]
+            options:
+                --dao-file-path DAO_FILE_PATH
+                --dao-contract-name DAO_CONTRACT_NAME
+                --scheduler-file-path SCHEDULER_FILE_PATH
+                --scheduler-contract-name SCHEDULER_CONTRACT_NAME
+                --host-file-path HOST_FILE_PATH
+                --host-contract-name HOST_CONTRACT_NAME
+                --tower-file-path TOWER_FILE_PATH
+                --tower-contract-name TOWER_CONTRACT_NAME
+                --task-file-path TASK_FILE_PATH
+                --task-contract-name TASK_CONTRACT_NAME
     """
     parser = argparse.ArgumentParser(
         prog="deploy.py",
@@ -313,7 +477,16 @@ def deploy_action(
     args: argparse.Namespace
 ) -> None:
     r"""
-    Deploy action
+    Deploy the contract.
+
+    Args:
+        contract_file_path : Path to the contract file.
+        contract_name : Name of the contract.
+        contract_type : Type of the contract.
+        args : Arguments of the CLI.
+
+    CLI:
+        parser env_options [constructors] contract [options]
     """
     w3 = web3.Web3(
         web3.Web3.HTTPProvider(args.endpoint_uri)
@@ -373,7 +546,10 @@ def execute_action(
     args: argparse.Namespace
 ) -> None:
     r"""
-    Execute action
+    Execute the action of the deploy CLI.
+
+    Args:
+        args : Arguments of the deploy CLI.
     """
     if args.action == "contract":
         deploy_action(
@@ -418,6 +594,12 @@ def execute_action(
 
 
 def get_default_parser() -> argparse.ArgumentParser:
+    r"""
+    Get the default parser.
+
+    Returns:
+        argparse.ArgumentParser : The parser.
+    """
     return get_parser(
         DEFAULT_DAO_ADDRESS_FILE_PATH=DEFAULT_DAO_ADDRESS_FILE_PATH,
         DEFAULT_CONTRACT_NAMES=DEFAULT_CONTRACT_NAMES,
@@ -434,59 +616,13 @@ def get_default_parser() -> argparse.ArgumentParser:
 
 
 def main():
+    r"""
+    The main function.
+    """
     parser = get_default_parser()
     args = parser.parse_args()
     execute_action(args)
 
 
-"""
-Ussage:
-1. One contract
-python deploy.py \
---dao-address-file-path ../dao_contract_address.txt \
---endpoint-uri "http://localhost:9000" \
---private-key \
-"0xcd072cd8be6f9f62ac4c09c28206e7e35594aa6b342f5d0a3a5e4842fab428f7" \
---scheduler-fee 100 \
---host-register-fee 100 \
---host-initial-stake 100 \
---host-task-register-fee 100 \
---host-failed-task-penalty 100 \
---tower-initial-stake 100 \
---tower-host-request-fee 100 \
---tower-failed-task-penalty 100 \
---task-addition-fee 100 \
-contract \
---contract-file-path \
-../../../meca-contracts/src/contracts/MecaContract.sol \
---contract-name MecaDaoContract \
---contract-type dao
-2. All contracts
-python deploy.py \
---dao-address-file-path ../dao_contract_address.txt \
---endpoint-uri "http://localhost:9000" \
---private-key \
-"0xcd072cd8be6f9f62ac4c09c28206e7e35594aa6b342f5d0a3a5e4842fab428f7" \
---scheduler-fee 100 \
---host-register-fee 100 \
---host-initial-stake 100 \
---host-task-register-fee 100 \
---host-failed-task-penalty 100 \
---tower-initial-stake 100 \
---tower-host-request-fee 100 \
---tower-failed-task-penalty 100 \
---task-addition-fee 100 \
-all-contracts \
---dao-file-path \
-../../../meca-contracts/src/contracts/MecaContract.sol \
---scheduler-file-path \
-../../../meca-contracts/src/contracts/SchedulerContract.sol \
---host-file-path \
-../../../meca-contracts/src/contracts/HostContract.sol \
---tower-file-path \
-../../../meca-contracts/src/contracts/TowerContract.sol \
---task-file-path \
-../../../meca-contracts/src/contracts/TaskContract.sol
-"""
 if __name__ == "__main__":
     main()

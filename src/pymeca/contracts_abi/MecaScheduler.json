@@ -296,7 +296,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "newHostContract",
+                "name": "newAddress",
                 "type": "address"
             }
         ],
@@ -322,7 +322,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "newTaskContract",
+                "name": "newAddress",
                 "type": "address"
             }
         ],
@@ -335,7 +335,7 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "newTowerContract",
+                "name": "newAddress",
                 "type": "address"
             }
         ],

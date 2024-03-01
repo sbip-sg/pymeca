@@ -13,6 +13,7 @@ import pymeca.user
 import pymeca.utils
 
 
+# accounts with initial balance
 @pytest.fixture(scope="session")
 def INITIAL_BALANCE():
     return 1000
@@ -29,6 +30,7 @@ def accounts(
     )
 
 
+# constrctor contracts default values
 @pytest.fixture(scope="session")
 def SCHEDULER_FEE():
     return 10
@@ -74,6 +76,8 @@ def TASK_ADDITION_FEE():
     return 5
 
 
+# ports of the ganache servers with different setups of
+# the blockchain environment and meca actors and contracts
 @pytest.fixture(scope="session")
 def CLEAN_PORT():
     return 8545
@@ -94,6 +98,7 @@ def FILL_PORT():
     return 8548
 
 
+# the ganache script path
 @pytest.fixture(scope="session")
 def GANAHE_SERVER_SCRIPT_PATH():
     tests_dir = pathlib.Path(__file__).absolute().parent
@@ -110,7 +115,18 @@ def ganache_web3(
     accounts: dict,
     ganache_server_script_path: str,
     port: int
-):
+) -> tuple[web3.Web3, subprocess.Popen]:
+    r"""
+    Start a ganache server and return a web3 instance.
+
+    Args:
+        accounts : Accounts with initial balance.
+        ganache_server_script_path : Ganache server script path.
+        port : Port of the ganache server.
+
+    Returns:
+        tuple[web3.Web3, subprocess.Popen] : (web3_instance, server_process)
+    """
     # start the ganache server
     server_process = subprocess.Popen(
         [
@@ -142,7 +158,24 @@ def clean_web3(
     accounts,
     GANAHE_SERVER_SCRIPT_PATH
 ):
-    def _clean_web3(port: int):
+    r"""
+    Return a function to start a clean web3 instance for the
+    accounts definied. The clean web has only the accounts
+    with the initial balance.
+    """
+    def _clean_web3(port: int) -> tuple[web3.Web3, subprocess.Popen]:
+        r"""
+        Start a ganaches server with the accounts definied
+        on the given port. The blockchain environment does
+        not have any contract and the accounts have the initial balance.
+
+        Args:
+            port : Port of the ganache server.
+
+        Returns:
+            tuple[web3.Web3, subprocess.Popen] :
+                (web3_instance, server_process)
+        """
         web3_instance, server_process = ganache_web3(
             accounts,
             GANAHE_SERVER_SCRIPT_PATH,
@@ -158,11 +191,17 @@ def clean_setup(
     clean_web3,
     CLEAN_PORT
 ):
+    r"""
+    Return a clean web3 instance for the accounts definied on
+    the given port. The blockchain environment does not have
+    any contract and the accounts have the initial balance.
+    """
     w3, server_process = clean_web3(CLEAN_PORT)
     yield w3
     server_process.terminate()
 
 
+# contracts directory and default contract file names
 @pytest.fixture(scope="session")
 def CONTRACTS_DIRECTORY():
     return (
@@ -212,8 +251,52 @@ def simple_web3(
     DEFAULT_CONTRACT_FILE_NAMES,
     DEFAULT_CONTRACT_NAMES
 ):
-    def _simple_web3(port: int):
+    r"""
+    Return a function to start a simple web3 instance for the
+    accounts definied on the given port. The blockchain environment
+    has the meca contracts and the actors are initialized.
+
+    Args:
+        accounts : Accounts with initial balance.
+        clean_web3 : Clean web3 instance.
+        SCHEDULER_FEE : Scheduler fee.
+        HOST_REGISTER_FEE : Host register fee.
+        HOST_INITIAL_STAKE : Host initial stake.
+        HOST_FAILED_TASK_PENALTY : Host failed task penalty.
+        HOST_TASK_REGISTER_FEE : Host task register fee.
+        TOWER_INITIAL_STAKE : Tower initial stake.
+        TOWER_HOST_REQUEST_FEE : Tower host request fee.
+        TOWER_FAILED_TASK_PENALTY : Tower failed task penalty.
+        TASK_ADDITION_FEE : Task addition fee.
+        CONTRACTS_DIRECTORY : Contracts directory.
+        DEFAULT_CONTRACT_FILE_NAMES : Default contract file names.
+        DEFAULT_CONTRACT_NAMES : Default contract names.
+
+    Returns:
+        function : Simple web3 instance.
+    """
+    def _simple_web3(
+        port: int
+    ) -> tuple[web3.Web3, subprocess.Popen, dict, dict]:
+        r"""
+        Start a blockchain environment with ganache
+        for the accounts definied on
+        the given port. The blockchain environment has the meca
+        contracts and the actors are initialized.
+
+        Args:
+            port : Port of the ganache server.
+
+        Returns:
+            tuple[web3.Web3, subprocess.Popen, dict, dict] :
+                (web3_instance, server_process, addresses, actors)
+            web3_instance : Web3 instance.
+            server_process : Ganache server process.
+            addresses : Addresses of the contracts.
+            actors : Meca actors.
+        """
         w3, server_process = clean_web3(port)
+        # deploy the contracts
         addresses = pymeca.dao.init_meca_envirnoment(
             endpoint_uri="http://localhost:" + str(port),
             private_key=accounts["meca_dao"]["private_key"],
@@ -252,6 +335,7 @@ def simple_web3(
             task_contract_name=DEFAULT_CONTRACT_NAMES["task"],
             task_addition_fee=TASK_ADDITION_FEE
         )
+        # init the actors
         meca_user = pymeca.user.MecaUser(
             w3=w3,
             private_key=accounts["meca_user"]["private_key"],
@@ -289,11 +373,18 @@ def simple_setup(
     simple_web3,
     SIMPLE_PORT
 ):
+    r"""
+    Creates simple setup for the blockchain environment
+    for the accounts definied on he given port. The blockchain
+    environment has the meca contracts and the actors are initialized.
+    """
     w3, server_process, addresses, actors = simple_web3(SIMPLE_PORT)
     yield (w3, addresses, actors)
     server_process.terminate()
 
 
+# initial values for the actors when they are registered
+# on the blockchain and interact with meca ecosystem
 @pytest.fixture(scope="session")
 def initial_tower(accounts):
     return dict(
@@ -335,21 +426,45 @@ def initial_task(accounts):
 
 @pytest.fixture(scope="session")
 def register_web3(
-    accounts,
     simple_web3,
     initial_host,
     initial_tower,
     initial_task
 ):
-    def _register_web3(port: int):
-        w3, server_process, addresses, actors = simple_web3(port)
+    r"""
+    Return a function to start a register web3 instance for the
+    accounts definied on the given port. The blockchain environment
+    has the meca contracts and the actors are initialized. Also, the
+    actors are registered on the blockchain and interact with meca ecosystem.
+    """
+    def _register_web3(
+        port: int
+    ) -> tuple[web3.Web3, subprocess.Popen, dict, dict]:
+        r"""
+        Start a blockchain environment with ganache
+        for the accounts definied on
+        the given port. The blockchain environment has the meca
+        contracts and the actors are initialized.
 
+        Args:
+            port : Port of the ganache server.
+
+        Returns:
+            tuple[web3.Web3, subprocess.Popen, dict, dict] :
+                (web3_instance, server_process, addresses, actors)
+            web3_instance : Web3 instance.
+            server_process : Ganache server process.
+            addresses : Addresses of the contracts.
+            actors : Meca actors.
+        """
+        w3, server_process, addresses, actors = simple_web3(port)
+        # register the host
         actors["host"].register(
             block_timeout_limit=initial_host["blockTimeoutLimit"],
             public_key=initial_host["eccPublicKey"],
             initial_deposit=initial_host["stake"]
         )
-
+        # register the tower
         actors["tower"].register_tower(
             size_limit=initial_tower["sizeLimit"],
             public_connection=initial_tower["publicConnection"],
@@ -357,7 +472,7 @@ def register_web3(
             fee_type=initial_tower["feeType"],
             initial_deposit=initial_tower["stake"]
         )
-
+        # register the task
         actors["task_developer"].register_task(
             ipfs_sha256=initial_task["ipfsSha256"],
             fee=initial_task["fee"],
@@ -375,11 +490,20 @@ def register_setup(
     register_web3,
     REGISTER_PORT
 ):
+    r"""
+    Creates setup for the blockchain environment
+    for the accounts definied on he given port. The blockchain
+    environment has the meca contracts and the actors are initialized.
+    The host register itself on the host contract.
+    The tower register itself on the tower contract.
+    The task developer register the task on the task contract.
+    """
     w3, server_process, addresses, actors = register_web3(REGISTER_PORT)
     yield (w3, addresses, actors)
     server_process.terminate()
 
 
+# the initial task for the host
 @pytest.fixture(scope="class")
 def initial_host_task(initial_task):
     return dict(
@@ -391,23 +515,47 @@ def initial_host_task(initial_task):
 
 @pytest.fixture(scope="class")
 def fill_web3(
-    accounts,
     register_web3,
     initial_host_task
 ):
-    def _fill_web3(port: int):
-        w3, server_process, addresses, actors = register_web3(port)
+    r"""
+    Using the register environment it creates a flow for running a
+    task on the blockchain. The host register the task for itself on
+    the host contract. The host request to be registered on the tower
+    list. The tower accept the host.
+    """
+    def _fill_web3(
+        port: int
+    ) -> tuple[web3.Web3, subprocess.Popen, dict, dict]:
+        r"""
+        Start a blockchain environment with ganache
+        for the accounts definied on
+        the given port. The blockchain environment has a functional
+        task flow.
 
+        Args:
+            port : Port of the ganache server.
+
+        Returns:
+            tuple[web3.Web3, subprocess.Popen, dict, dict] :
+                (web3_instance, server_process, addresses, actors)
+            web3_instance : Web3 instance.
+            server_process : Ganache server process.
+            addresses : Addresses of the contracts.
+            actors : Meca actors.
+        """
+        w3, server_process, addresses, actors = register_web3(port)
+        # the host add the task
         actors["host"].add_task(
             ipfs_sha256=initial_host_task["ipfsSha256"],
             block_timeout=initial_host_task["blockTimeout"],
             fee=initial_host_task["fee"]
         )
-
+        # the host request to ge tin the tower list
         actors["host"].register_for_tower(
             tower_address=actors["tower"].account.address
         )
-
+        # the tower accepts the host
         actors["tower"].accept_host(
             host_address=actors["host"].account.address
         )
@@ -422,6 +570,11 @@ def fill_setup(
     fill_web3,
     FILL_PORT
 ):
+    r"""
+    Creates setup for the blockchain environment
+    for the accounts definied on he given port. The blockchain
+    environment has a functional task flow.
+    """
     w3, server_process, addresses, actors = fill_web3(FILL_PORT)
     yield (w3, addresses, actors)
     server_process.terminate()
