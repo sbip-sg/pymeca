@@ -2,6 +2,13 @@
 from importlib.metadata import version
 __version__ = version("pymeca")
 
+__author__ = "Stefan-Dan Ciocirlan (sdcioc)"
+__copyright__ = "Copyright 2023, Singapore Blockchain Innovation Programme"
+__credits__ = []
+__license__ = "MIT"
+__maintainer__ = "Stefan-Dan Ciocirlan"
+__email__ = "stefan_dan@xn--ciocrlan-o2a.ro"
+
 __all__ = [
     "dao",
     "pymeca",

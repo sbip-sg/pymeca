@@ -74,7 +74,7 @@ def get_contract_compile_info(
 
     compiled_contract_name = f'<stdin>:{contract_name}'
     if compiled_contract_name not in compiled_sol:
-        raise Exception(
+        raise MecaError(
             f"Contract {contract_name} not found in the compiled contracts"
         )
     # get the contract abi
@@ -91,6 +91,7 @@ def get_contract_compile_info(
     return (contract_abi, contract_bytecode)
 
 
+# load the abi files for the contracts
 try:
     with open(str(ABI_DIRECTORY / ABI_NAMES["dao"]) + ".json", "r") as f:
         MECA_DAO_ABI = json.load(f)
@@ -129,7 +130,7 @@ def get_gas_to_send(
     # verify the balance
     account_balance = w3.eth.get_balance(account.address)
     if account_balance < (gas_estimate + gas_extra) * w3.eth.gas_price:
-        raise ValueError(
+        raise MecaError(
             f"""Insufficient balance {account_balance}
             < {(gas_estimate + gas_extra) * w3.eth.gas_price}
             """
@@ -167,7 +168,7 @@ def sign_send_wait_transaction(
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
 
     if tx_receipt.status != 1:
-        raise Exception(
+        raise MecaError(
             "Transaction failed"
         )
 
@@ -189,6 +190,10 @@ def deploy_contract(
         private_key : private key of the account
         contract_file_path : path to the contract file
         contract_name : name of the contract
+        kwargs : constructor arguments
+
+    Returns:
+        contract address
     """
     logger.info(
         f"Deploying the contract {contract_name} at {contract_file_path}"
@@ -243,6 +248,15 @@ def deploy_contract(
 def get_sha256_from_cid(
     cid: str
 ) -> str:
+    r"""
+    Get the sha256 from the cid
+
+    Args:
+        cid : cid of the directory/file
+
+    Returns:
+        sha256
+    """
     # convert the cid to class
     cid = multiformats_cid.make_cid(cid)
     if type(cid) is multiformats_cid.CIDv0:
@@ -261,28 +275,28 @@ def get_sha256_from_cid(
     hex_cid_hex_string = hex_cid_hex_string[2:]
     cid_multihash = hex_cid_hex_string
     if cid_version != "01":
-        raise ValueError(
+        raise MecaError(
             "Invalid cid version"
         )
     if cid_codec != "70":
-        raise ValueError(
+        raise MecaError(
             "Invalid cid codec"
         )
     # sha3
     if cid_multihash_type != "12":
-        raise ValueError(
+        raise MecaError(
             "Invalid cid multihash type"
         )
 
     # 32 bytes
     if cid_multihash_length != "20":
-        raise ValueError(
+        raise MecaError(
             "Invalid cid multihash length"
         )
 
     # verify length 32 bytes -> 64 hex caracters
     if len(cid_multihash) != 64:
-        raise ValueError(
+        raise MecaError(
             "Invalid cid multihash string length"
         )
 
@@ -293,13 +307,13 @@ def cidv1_object_from_sha256(
     sha256: str
 ) -> multiformats_cid.CIDv1:
     r"""
-    Get the cid from the sha256
+    Get the cid version 1 object from the sha256
 
     Args:
         sha256 : sha256
 
     Returns:
-        cid
+        cid version 1
     """
     # cid version
     version = "01"
@@ -311,12 +325,12 @@ def cidv1_object_from_sha256(
     multihash_length = "20"
     # convert the sha256
     if not sha256.startswith("0x"):
-        raise ValueError(
+        raise MecaError(
             "Invalid sha256"
         )
     sha256 = sha256[2:]
     if len(sha256) != 64:
-        raise ValueError(
+        raise MecaError(
             "Invalid sha256 length"
         )
     # sha256 hash
@@ -340,7 +354,7 @@ def cid_from_sha256(
     sha256: str
 ) -> str:
     r"""
-    Get the cid from the sha256
+    Get the cid string from the sha256
 
     Args:
         sha256 : sha256
@@ -353,7 +367,7 @@ def cid_from_sha256(
 
 def generate_account() -> tuple[str, str]:
     r"""
-    Generate an account
+    Generate an account using secrests
 
     Returns:
         (private_key, address)
@@ -365,7 +379,7 @@ def generate_account() -> tuple[str, str]:
 
 def generate_simulate_account() -> tuple[str, str]:
     r"""
-    Generate an account
+    Generate an account for simulation using random
 
     Returns:
         (private_key, address)
@@ -380,10 +394,43 @@ def generate_meca_simulate_accounts(
     initial_balance: int = 1000
 ) -> dict[str, dict[str, str]]:
     r"""
-    Generate meca simulate accounts
+    Generate meca simulate accounts with the given
+    initial balance.
+
+    The accounts are the dao owner, a tower, a host, a user,
+    and a task developer.
+
+    Args:
+        initial_balance : initial balance
 
     Returns:
-        accounts
+        accounts -> {
+            "meca_dao": {
+                "private_key": private_key,
+                "account_address": account_address,
+                "balance": balance
+            },
+            "meca_tower": {
+                "private_key": private_key,
+                "account_address": account_address,
+                "balance": balance
+            },
+            "meca_host": {
+                "private_key": private_key,
+                "account_address": account_address,
+                "balance": balance
+            },
+            "meca_user": {
+                "private_key": private_key,
+                "account_address": account_address,
+                "balance": balance
+            },
+            "meca_task": {
+                "private_key": private_key,
+                "account_address": account_address,
+                "balance": balance
+            }
+        }
     """
     accounts = dict()
     # MECA DAO, MECA Tower, MECA Host, MECA User, MECA Task developer

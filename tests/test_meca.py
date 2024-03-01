@@ -1,1 +1,0 @@
-from pymeca import pymeca

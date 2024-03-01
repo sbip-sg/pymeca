@@ -2,6 +2,7 @@ import pytest
 import pymeca.pymeca
 
 
+# a simple active actor
 @pytest.fixture(scope="class")
 def active_actor(
     accounts,

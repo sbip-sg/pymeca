@@ -6,14 +6,21 @@ import pymeca.pymeca
 
 logger = logging.getLogger(__name__)
 
-
+# get the current directory
 CURRENT_DIR = pathlib.Path(__file__).parent.absolute()
+# get the default dao address file path
 DEFAULT_DAO_ADDRESS_FILE_PATH = (
     CURRENT_DIR / "dao_contract_address.txt"
 ).resolve()
 
 
 def get_DAO_ADDRESS():
+    r"""
+    Get the dao contract address
+
+    Returns:
+        str : dao contract address
+    """
     try:
         with open(DEFAULT_DAO_ADDRESS_FILE_PATH, "r") as f:
             return f.read().strip()
@@ -37,7 +44,10 @@ class MecaDAOOwner(pymeca.pymeca.MecaActor):
             private_key : private key of the account
             contract_address : dao contract address
         """
-        super().__init__(w3=w3, private_key=private_key)
+        super().__init__(
+            w3=w3,
+            private_key=private_key
+        )
         # get the contract abi
         self.contract = self.w3.eth.contract(
             address=contract_address,
@@ -45,15 +55,19 @@ class MecaDAOOwner(pymeca.pymeca.MecaActor):
         )
         # verify if the account is the owner
         if self.account.address != self.contract.functions.owner().call():
-            raise ValueError(
+            raise pymeca.utils.MecaError(
                 "The account is not the owner of the contract"
             )
 
     def get_scheduler_address(self) -> str:
         r"""
-        Get the scheduler address
+        Get the scheduler address.
+
+        Returns:
+            str : scheduler contract address
         """
-        return self.contract.functions.getSchedulerContract().call()
+        return self.contract.functions.getSchedulerContract(
+        ).call()
 
     def set_scheduler(
         self,
@@ -64,10 +78,13 @@ class MecaDAOOwner(pymeca.pymeca.MecaActor):
 
         Args:
             contract_address : address of the scheduler contract
+
+        Returns:
+            bool : success status
         """
         transaction = (
             self.contract.functions.setSchedulerContract(
-                contract_address
+                newSchedulerContract=contract_address
             ).build_transaction({
                 "from": self.account.address,
                 "nonce": self.w3.eth.get_transaction_count(
@@ -76,7 +93,9 @@ class MecaDAOOwner(pymeca.pymeca.MecaActor):
             })
         )
 
-        self._execute_transaction(transaction)
+        tx_receipt = self._execute_transaction(transaction)
+
+        return tx_receipt.status == 1
 
 
 class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
@@ -94,7 +113,10 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
             private_key : private key of the account
             contract_address : scheduler contract address
         """
-        super().__init__(w3=w3, private_key=private_key)
+        super().__init__(
+            w3=w3,
+            private_key=private_key
+        )
 
         # get the contract abi
         self.contract = self.w3.eth.contract(
@@ -103,13 +125,16 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
         )
         # verify if the account is the owner
         if self.account.address != self.contract.functions.owner().call():
-            raise ValueError(
+            raise pymeca.utils.MecaError(
                 "The account is not the owner of the contract"
             )
 
-    def clear(self):
+    def clear(self) -> bool:
         r"""
         Clear the scheduler
+
+        Returns:
+            bool : success status
         """
         transaction = (
             self.contract.functions.clear().build_transaction({
@@ -120,24 +145,36 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
             })
         )
 
-        self._execute_transaction(transaction)
+        tx_receipt = self._execute_transaction(transaction)
+
+        return tx_receipt.status == 1
 
     def get_flag(self) -> bool:
         r"""
         Get the scheduler flag
+
+        Returns:
+            bool : scheduler flag
         """
-        return self.contract.functions.schedulerFlag().call()
+        return self.contract.functions.schedulerFlag(
+        ).call()
 
     def set_flag(
         self,
         flag: bool
-    ):
+    ) -> bool:
         r"""
         Set the scheduler flag
+
+        Args:
+            flag : scheduler flag
+
+        Returns:
+            bool : success status
         """
         transaction = (
             self.contract.functions.setSchedulerFlag(
-                flag
+                newSchedulerFlag=flag
             ).build_transaction({
                 "from": self.account.address,
                 "nonce": self.w3.eth.get_transaction_count(
@@ -146,15 +183,24 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
             })
         )
 
-        self._execute_transaction(transaction)
+        tx_receipt = self._execute_transaction(transaction)
+
+        return tx_receipt.status == 1
 
     def _set_contract(
         self,
         contract_address: str,
         contract_type: int
-    ):
+    ) -> bool:
         r"""
-        Set contract to the scheduler
+        Set a contract on the scheduler.
+
+        Args:
+            contract_address : address of the contract
+            contract_type : type of the contract (0: host, 1: tower, 2: task)
+
+        Returns:
+            bool : success status
         """
         contract_functions = {
             0: self.contract.functions.setHostContract,
@@ -162,13 +208,13 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
             2: self.contract.functions.setTaskContract
         }
         if contract_type not in contract_functions:
-            raise ValueError(
+            raise pymeca.utils.MecaError(
                 f"Invalid contract type {contract_type}"
             )
 
         transaction = (
             contract_functions[contract_type](
-                contract_address
+                newAddress=contract_address
             ).build_transaction({
                 "from": self.account.address,
                 "nonce": self.w3.eth.get_transaction_count(
@@ -177,16 +223,24 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
             })
         )
 
-        self._execute_transaction(transaction)
+        tx_receipt = self._execute_transaction(transaction)
+
+        return tx_receipt.status == 1
 
     def set_host_contract(
         self,
         contract_address: str
-    ):
+    ) -> bool:
         r"""
-        Set host to the scheduler
+        Set a new host contract for the scheduler
+
+        Args:
+            contract_address : address of the host contract
+
+        Returns:
+            bool : success status
         """
-        self._set_contract(
+        return self._set_contract(
             contract_address=contract_address,
             contract_type=0
         )
@@ -194,11 +248,17 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
     def set_tower_contract(
         self,
         contract_address: str
-    ):
+    ) -> bool:
         r"""
-        Set tower to the scheduler
+        Set a new tower contract for the scheduler
+
+        Args:
+            contract_address : address of the tower contract
+
+        Returns:
+            bool : success status
         """
-        self._set_contract(
+        return self._set_contract(
             contract_address=contract_address,
             contract_type=1
         )
@@ -206,11 +266,17 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
     def set_task_contract(
         self,
         contract_address: str
-    ):
+    ) -> bool:
         r"""
-        Set task to the scheduler
+        Set a new task contract for the scheduler
+
+        Args:
+            contract_address : address of the task contract
+
+        Returns:
+            bool : success status
         """
-        self._set_contract(
+        return self._set_contract(
             contract_address=contract_address,
             contract_type=2
         )
@@ -220,7 +286,14 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
         contract_type: int
     ) -> str:
         r"""
-        Get the contract address of the scheduler
+        Get the contract address of one of the contracts
+        from the scheduler.
+
+        Args:
+            contract_type : type of the contract (0: host, 1: tower, 2: task)
+
+        Returns:
+            str : contract address
         """
         contract_functions = {
             0: self.contract.functions.getHostContract,
@@ -228,7 +301,7 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
             2: self.contract.functions.getTaskContract
         }
         if contract_type not in contract_functions:
-            raise ValueError(
+            raise pymeca.utils.MecaError(
                 f"Invalid contract type {contract_type}"
             )
         return contract_functions[contract_type]().call()
@@ -236,18 +309,27 @@ class MecaSchedulerOwner(pymeca.pymeca.MecaActor):
     def get_host_contract_address(self) -> str:
         r"""
         Get the host contract address
+
+        Returns:
+            str : host contract address
         """
         return self._get_contract_address(0)
 
     def get_tower_contract_address(self) -> str:
         r"""
         Get the tower contract address
+
+        Returns:
+            str : tower contract address
         """
         return self._get_contract_address(1)
 
     def get_task_contract_address(self) -> str:
         r"""
         Get the task contract address
+
+        Returns:
+            str : task contract address
         """
         return self._get_contract_address(2)
 
@@ -267,7 +349,10 @@ class MecaTowerContractOwner(pymeca.pymeca.MecaActor):
             private_key : private key of the account
             contract_address : tower contract address
         """
-        super().__init__(w3=w3, private_key=private_key)
+        super().__init__(
+            w3=w3,
+            private_key=private_key
+        )
 
         # get the contract abi
         self.contract = self.w3.eth.contract(
@@ -276,26 +361,36 @@ class MecaTowerContractOwner(pymeca.pymeca.MecaActor):
         )
         # verify if the account is the owner
         if self.account.address != self.contract.functions.owner().call():
-            raise ValueError(
+            raise pymeca.utils.MecaError(
                 "The account is not the owner of the contract"
             )
 
     def get_scheduler_address(self) -> str:
         r"""
         Get the scheduler address
+
+        Returns:
+            str : scheduler contract address
         """
-        return self.contract.functions.schedulerContractAddress().call()
+        return self.contract.functions.schedulerContractAddress(
+        ).call()
 
     def set_scheduler(
         self,
         contract_address: str
     ) -> bool:
         r"""
-        Set scheduler to the tower contract
+        Set a new scheduler contract for the tower.
+
+        Args:
+            contract_address : address of the scheduler contract
+
+        Returns:
+            bool : success status
         """
         transaction = (
             self.contract.functions.setSchedulerContractAddress(
-                contract_address
+                newSchedulerContractAddress=contract_address
             ).build_transaction({
                 "from": self.account.address,
                 "nonce": self.w3.eth.get_transaction_count(
@@ -304,11 +399,16 @@ class MecaTowerContractOwner(pymeca.pymeca.MecaActor):
             })
         )
 
-        self._execute_transaction(transaction)
+        tx_receipt = self._execute_transaction(transaction)
 
-    def clear(self):
+        return tx_receipt.status == 1
+
+    def clear(self) -> bool:
         r"""
         Clear the tower contract
+
+        Returns:
+            bool : success status
         """
         transaction = (
             self.contract.functions.clear().build_transaction({
@@ -319,7 +419,9 @@ class MecaTowerContractOwner(pymeca.pymeca.MecaActor):
             })
         )
 
-        self._execute_transaction(transaction)
+        tx_receipt = self._execute_transaction(transaction)
+
+        return tx_receipt.status == 1
 
 
 class MecaHostContractOwner(pymeca.pymeca.MecaActor):
@@ -337,7 +439,10 @@ class MecaHostContractOwner(pymeca.pymeca.MecaActor):
             private_key : private key of the account
             contract_address : host contract address
         """
-        super().__init__(w3=w3, private_key=private_key)
+        super().__init__(
+            w3=w3,
+            private_key=private_key
+        )
 
         # get the contract abi
         self.contract = self.w3.eth.contract(
@@ -346,26 +451,36 @@ class MecaHostContractOwner(pymeca.pymeca.MecaActor):
         )
         # verify if the account is the owner
         if self.account.address != self.contract.functions.owner().call():
-            raise ValueError(
+            raise pymeca.utils.MecaError(
                 "The account is not the owner of the contract"
             )
 
     def get_scheduler_address(self) -> str:
         r"""
         Get the scheduler address
+
+        Returns:
+            str : scheduler contract address
         """
-        return self.contract.functions.schedulerContractAddress().call()
+        return self.contract.functions.schedulerContractAddress(
+        ).call()
 
     def set_scheduler(
         self,
         contract_address: str
     ) -> bool:
         r"""
-        Set scheduler to the host contract
+        Set a new scheduler contract for the host.
+
+        Args:
+            contract_address : address of the scheduler contract
+
+        Returns:
+            bool : success status
         """
         transaction = (
             self.contract.functions.setSchedulerContractAddress(
-                contract_address
+                newSchedulerContractAddress=contract_address
             ).build_transaction({
                 "from": self.account.address,
                 "nonce": self.w3.eth.get_transaction_count(
@@ -374,11 +489,16 @@ class MecaHostContractOwner(pymeca.pymeca.MecaActor):
             })
         )
 
-        self._execute_transaction(transaction)
+        tx_receipt = self._execute_transaction(transaction)
 
-    def clear(self):
+        return tx_receipt.status == 1
+
+    def clear(self) -> bool:
         r"""
         Clear the host contract
+
+        Returns:
+            bool : success status
         """
         transaction = (
             self.contract.functions.clear().build_transaction({
@@ -389,7 +509,9 @@ class MecaHostContractOwner(pymeca.pymeca.MecaActor):
             })
         )
 
-        self._execute_transaction(transaction)
+        tx_receipt = self._execute_transaction(transaction)
+
+        return tx_receipt.status == 1
 
 
 class MecaTaskContractOwner(pymeca.pymeca.MecaActor):
@@ -407,7 +529,10 @@ class MecaTaskContractOwner(pymeca.pymeca.MecaActor):
             private_key : private key of the account
             contract_address : task contract address
         """
-        super().__init__(w3=w3, private_key=private_key)
+        super().__init__(
+            w3=w3,
+            private_key=private_key
+        )
 
         # get the contract abi
         self.contract = self.w3.eth.contract(
@@ -416,13 +541,16 @@ class MecaTaskContractOwner(pymeca.pymeca.MecaActor):
         )
         # verify if the account is the owner
         if self.account.address != self.contract.functions.owner().call():
-            raise ValueError(
+            raise pymeca.utils.MecaError(
                 "The account is not the owner of the contract"
             )
 
-    def clear(self):
+    def clear(self) -> bool:
         r"""
         Clear the task contract
+
+        Returns:
+            bool : success status
         """
         transaction = (
             self.contract.functions.clear().build_transaction({
@@ -433,7 +561,9 @@ class MecaTaskContractOwner(pymeca.pymeca.MecaActor):
             })
         )
 
-        self._execute_transaction(transaction)
+        tx_receipt = self._execute_transaction(transaction)
+
+        return tx_receipt.status == 1
 
 
 def init_meca_envirnoment(
@@ -460,7 +590,8 @@ def init_meca_envirnoment(
     task_addition_fee: int
 ) -> dict:
     r"""
-    Initialize the pymeca environment
+    Initialize the MECA ecosystem by deploying the contracts
+    and connecting them.
 
     Args:
         endpoint_uri : blockchain endpoint uri
@@ -469,12 +600,21 @@ def init_meca_envirnoment(
         dao_contract_name : dao contract name
         scheduler_contract_file_path : scheduler contract file path
         scheduler_contract_name : scheduler contract name
+        scheduler_fee : scheduler fee
         host_contract_file_path : host contract file path
         host_contract_name : host contract name
+        host_register_fee : host register fee
+        host_initial_stake : host initial stake
+        host_task_register_fee : host task register fee
+        host_failed_task_penalty : host failed task penalty
         tower_contract_file_path : tower contract file path
         tower_contract_name : tower contract name
+        tower_initial_stake : tower initial stake
+        tower_host_request_fee : tower host request fee
+        tower_failed_task_penalty : tower failed task penalty
         task_contract_file_path : task contract file path
         task_contract_name : task contract name
+        task_addition_fee : task addition fee
 
     Returns:
         dict : addresses of the contracts
@@ -482,7 +622,7 @@ def init_meca_envirnoment(
     # initialize the web3 instance
     w3 = web3.Web3(web3.HTTPProvider(endpoint_uri))
     if not w3.is_connected():
-        raise ValueError("Blockchain endpoint is not connected")
+        raise pymeca.utils.MecaError("Blockchain endpoint is not connected")
 
     logger.info("Blockchain endpoint is connected")
 

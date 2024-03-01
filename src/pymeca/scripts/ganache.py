@@ -1,3 +1,34 @@
+r"""
+The CLI script to start a ganache server with the MECA contracts deployed
+and the accounts and dao contract address saved in files.
+
+
+Example of use:
+python3 ganache.py \
+--port 9000 \
+--ganache-server-script-path ../../../meca-contracts/src/ganache/index.js \
+--accounts_file_path ../../config/accounts.json \
+--dao-address-file-path ../dao_contract_address.txt \
+--dao-file-path \
+../../../meca-contracts/src/contracts/MecaContract.sol \
+--scheduler-file-path \
+../../../meca-contracts/src/contracts/SchedulerContract.sol \
+--host-file-path \
+../../../meca-contracts/src/contracts/HostContract.sol \
+--tower-file-path \
+../../../meca-contracts/src/contracts/TowerContract.sol \
+--task-file-path \
+../../../meca-contracts/src/contracts/TaskContract.sol \
+--scheduler-fee 100 \
+--host-register-fee 100 \
+--host-initial-stake 100 \
+--host-task-register-fee 100 \
+--host-failed-task-penalty 100 \
+--tower-initial-stake 100 \
+--tower-host-request-fee 100 \
+--tower-failed-task-penalty 100 \
+--task-addition-fee 100
+"""
 import logging
 import json
 import subprocess
@@ -13,6 +44,34 @@ logger = logging.getLogger(__name__)
 
 
 def ganache_accounts():
+    r"""
+    Generate the simulate accounts.
+
+    Returns:
+        dict : Simulate accounts.
+        {
+            "meca_dao": {
+                "private_key": str,
+                "balance": int
+            },
+            "meca_scheduler": {
+                "private_key": str,
+                "balance": int
+            },
+            "meca_host": {
+                "private_key": str,
+                "balance": int
+            },
+            "meca_tower": {
+                "private_key": str,
+                "balance": int
+            },
+            "meca_task_developer": {
+                "private_key": str,
+                "balance": int
+            }
+        }
+    """
     # set the seed to be reproductible
     random.seed(0)
     return pymeca.utils.generate_meca_simulate_accounts()
@@ -22,7 +81,19 @@ def ganache_web3(
     accounts: dict,
     ganache_server_script_path: str,
     port: int
-):
+) -> tuple[web3.Web3, subprocess.Popen]:
+    r"""
+    Start the ganache server and return the web3 instance and the
+    subprocess of the server handler.
+
+    Args:
+        accounts : Simulate accounts.
+        ganache_server_script_path : Path to the ganache server script.
+        port : Port of the server.
+
+    Returns:
+        tuple[web3.Web3, subprocess.Popen] : (web3 instance, server process)
+    """
     # start the ganache server
     server_process = subprocess.Popen(
         [
@@ -63,7 +134,51 @@ def get_parser(
     DEFAULT_TASK_ADDITION_FEE: int
 ) -> argparse.ArgumentParser:
     r"""
-    Get parser
+    Get the CLI parser fro ganeche server starter.
+
+    Args:
+        DEFAULT_DAO_ADDRESS_FILE_PATH : Default DAO address file path.
+        DEFAULT_CONTRACT_NAMES : Default contract names.
+        DEFAULT_SCHEDULER_FEE : Default scheduler fee.
+        DEFAULT_HOST_REGISTER_FEE : Default host register fee.
+        DEFAULT_HOST_INITIAL_STAKE : Default host initial stake.
+        DEFAULT_HOST_TASK_REGISTER_FEE : Default host task register fee.
+        DEFAULT_HOST_FAILED_TASK_PENALTY : Default host failed task penalty.
+        DEFAULT_TOWER_INITIAL_STAKE : Default tower initial stake.
+        DEFAULT_TOWER_HOST_REQUEST_FEE : Default tower host request fee.
+        DEFAULT_TOWER_FAILED_TASK_PENALTY : Default tower failed task penalty.
+        DEFAULT_TASK_ADDITION_FEE : Default task addition fee.
+
+    Returns:
+        argparse.ArgumentParser : CLI parser.
+
+    CLI:
+        ganache.py [-h] [--port PORT]
+            --ganache-server-script-path GANACHE_SERVER_SCRIPT_PATH
+            --accounts_file_path ACCOUNTS_FILE_PATH
+            [--dao-address-file-path DAO_ADDRESS_FILE_PATH]
+            [options]
+
+        options:
+            --dao-file-path DAO_FILE_PATH
+            --dao-contract-name DAO_CONTRACT_NAME
+            --scheduler-file-path SCHEDULER_FILE_PATH
+            --scheduler-contract-name SCHEDULER_CONTRACT_NAME
+            --scheduler-fee SCHEDULER_FEE
+            --host-file-path HOST_FILE_PATH
+            --host-contract-name HOST_CONTRACT_NAME
+            --host-register-fee HOST_REGISTER_FEE
+            --host-initial-stake HOST_INITIAL_STAKE
+            --host-task-register-fee HOST_TASK_REGISTER_FEE
+            --host-failed-task-penalty HOST_FAILED_TASK_PENALTY
+            --tower-file-path TOWER_FILE_PATH
+            --tower-contract-name TOWER_CONTRACT_NAME
+            --tower-initial-stake TOWER_INITIAL_STAKE
+            --tower-host-request-fee TOWER_HOST_REQUEST_FEE
+            --tower-failed-task-penalty TOWER_FAILED_TASK_PENALTY
+            --task-file-path TASK_FILE_PATH
+            --task-contract-name TASK_CONTRACT_NAME
+            --task-addition-fee TASK_ADDITION_FEE
     """
     parser = argparse.ArgumentParser(
         description="Ganache server CLI starter",
@@ -104,10 +219,12 @@ def get_parser(
         action="store"
     )
 
+    # add the contracts info paths and names
     deploy.args_add_contracts_info(
         parser=parser,
         DEFAULT_CONTRACT_NAMES=DEFAULT_CONTRACT_NAMES
     )
+    # add the contracts constructor arguments
     deploy.args_contract_constructor(
         parser=parser,
         DEFAULT_SCHEDULER_FEE=DEFAULT_SCHEDULER_FEE,
@@ -125,6 +242,12 @@ def get_parser(
 
 
 def get_default_parser() -> argparse.ArgumentParser:
+    r"""
+    Get the default CLI parser.
+
+    Returns:
+        argparse.ArgumentParser : CLI parser.
+    """
     return get_parser(
         DEFAULT_DAO_ADDRESS_FILE_PATH=deploy.DEFAULT_DAO_ADDRESS_FILE_PATH,
         DEFAULT_CONTRACT_NAMES=deploy.DEFAULT_CONTRACT_NAMES,
@@ -148,7 +271,10 @@ def execute_action(
     args: argparse.Namespace
 ):
     r"""
-    Execute action
+    Execute the action of the ganache CLI.
+
+    Args:
+        args : CLI arguments.
     """
     logger.info("Starting the ganache server")
     accounts = ganache_accounts()
@@ -204,37 +330,14 @@ def execute_action(
 
 
 def main():
+    r"""
+    Main function.
+    """
     logger.setLevel(logging.INFO)
     parser = get_default_parser()
     args = parser.parse_args()
     execute_action(args)
 
 
-"""
-python3 ganache.py \
---port 9000 \
---ganache-server-script-path ../../../meca-contracts/src/ganache/index.js \
---accounts_file_path ../../config/accounts.json \
---dao-address-file-path ../dao_contract_address.txt \
---dao-file-path \
-../../../meca-contracts/src/contracts/MecaContract.sol \
---scheduler-file-path \
-../../../meca-contracts/src/contracts/SchedulerContract.sol \
---host-file-path \
-../../../meca-contracts/src/contracts/HostContract.sol \
---tower-file-path \
-../../../meca-contracts/src/contracts/TowerContract.sol \
---task-file-path \
-../../../meca-contracts/src/contracts/TaskContract.sol \
---scheduler-fee 100 \
---host-register-fee 100 \
---host-initial-stake 100 \
---host-task-register-fee 100 \
---host-failed-task-penalty 100 \
---tower-initial-stake 100 \
---tower-host-request-fee 100 \
---tower-failed-task-penalty 100 \
---task-addition-fee 100
-"""
 if __name__ == "__main__":
     main()
