@@ -38,6 +38,7 @@ import web3
 import argparse
 import pymeca.utils
 import deploy
+import requests
 
 
 logger = logging.getLogger(__name__)
@@ -107,16 +108,16 @@ def ganache_web3(
     # wait for the server to start
     web3_instance = web3.Web3(web3.Web3.HTTPProvider(endpoint_uri))
     index: int = 0
-    while index < 100:
+    while index < 5:
         try:
             web3_instance.eth.get_block("latest")
             break
-        except web3.exceptions.ConnectionError:
+        except requests.exceptions.ConnectionError:
             index += 1
             pass
         except Exception as e:
             assert False, e
-    assert index < 100
+    assert index < 5
     return (web3_instance, server_process)
 
 
