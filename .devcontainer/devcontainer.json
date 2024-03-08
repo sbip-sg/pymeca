@@ -3,7 +3,7 @@
 	"name": "MECA ganache devcontainer",
 	"build": { "dockerfile": "Dockerfile" },
 	"runArgs": [
-		"--rm"
+		"--rm", "-v", "/var/run/docker.sock:/var/run/docker.sock"
 	],
 	"customizations": {
 		"vscode": {
