@@ -47,15 +47,18 @@ async def send_message(request: Request):
     task_id = data["task_id"]
     if target_client_id in connected_clients:
 
+        # Check if the task is submitted on the blockchain
         running_task = meca_tower.get_running_task(task_id)
         if running_task is None:
             return {"error": f"Task {task_id} not found."}
         print("Running task found.")
 
+        # Check if the message matches with the running task input
         if running_task["inputHash"] != "0x"+message[:64]:
             return {"error": f"Message does not match with the running task input."}
         print("Message matches with the running task input.")
 
+        # Send the message to the target client and wait for the response
         target_conn = connected_clients[target_client_id]
         await target_conn.send_text(message)
         print(f"Message sent to client {target_client_id}")

@@ -3,14 +3,15 @@ import os
 import pathlib
 from web3 import Web3
 import json
-from pymeca.host import MecaHost
-import pymeca.utils
 import websockets
 import requests
 import ipfsApi
 from ecies.utils import generate_eth_key
 from ecies import decrypt
 import docker
+
+import pymeca.utils
+from pymeca.host import MecaHost
 from pymeca.dao import get_DAO_ADDRESS
 from cli import MecaCLI
 
@@ -35,12 +36,14 @@ class MecaHostCLI(MecaCLI):
             ipfs_sha = args[0]
             ipfs_cid = pymeca.utils.cid_from_sha256(ipfs_sha)
 
+            # Download IPFS folder in CONTAINER_FOLDER
             this_dir = os.getcwd()
             CONTAINER_FOLDER.mkdir(exist_ok=True)
             os.chdir(CONTAINER_FOLDER)
             ipfs_client.get(ipfs_cid)
             print("Downloaded IPFS folder.")
 
+            # Build docker image from IPFS folder
             docker_client.images.build(path=f"./{ipfs_cid}", tag=f"{ipfs_cid[-CONTAINER_NAME_LIMIT:]}")
             print("Built docker image.")
             os.chdir(this_dir)
@@ -59,11 +62,13 @@ async def main():
 
     print("Started host with address:", meca_host.account.address)
 
+    # Generate asymmetric keys for host decryption and user encryption
     eth_k = generate_eth_key()
     sk_hex = eth_k.to_hex()
     pk_hex = eth_k.public_key.to_hex()
     default_public_key = pk_hex
 
+    # Register host if not registered
     if not meca_host.is_registered():
         default_block_timeout_limit = DEFAULT_BLOCK_TIMEOUT_LIMIT
         default_initial_deposit = meca_host.get_host_initial_stake()
@@ -80,6 +85,7 @@ async def main():
         print("Host public key updated.")
     print("Host registered.")
 
+    # Blocking function to wait for tasks from a given tower
     async def wait_for_task(tower_uri: str):
         host_address = meca_host.account.address
         if tower_uri.startswith("http://"):
@@ -88,9 +94,13 @@ async def main():
             print("Waiting for tasks on websocket...")
             while True:
                 message = await websocket.recv()
+
+                # Decrypt message
                 decrypted_data = json.loads(decrypt(sk_hex, bytes.fromhex(message)).decode("utf-8"))
                 print(f"Received message from server: {decrypted_data}")
                 decrypted_data["id"] = decrypted_data["id"][-CONTAINER_NAME_LIMIT:] + ":latest"
+                
+                # Send task to executor
                 res = requests.post(TASK_EXECUTOR_URL, json=decrypted_data)
                 print(res.text)
                 await websocket.send(res.text)

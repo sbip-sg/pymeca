@@ -21,11 +21,11 @@ class MecaCLI:
         else:
             return "Invalid method"
 
-    def add_method(self, method):
-        self.child_methods.append(method)
-
     def shutdown(self):
         pass
+
+    def add_method(self, method):
+        self.child_methods.append(method)
 
     async def start(self):
         try:

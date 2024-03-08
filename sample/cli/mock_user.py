@@ -3,8 +3,9 @@ import requests
 from web3 import Web3
 import json
 from ecies import encrypt
-from pymeca.user import MecaUser
+
 import pymeca.utils
+from pymeca.user import MecaUser
 from pymeca.dao import get_DAO_ADDRESS
 from cli import MecaCLI
 
@@ -28,7 +29,8 @@ class MecaUserCLI(MecaCLI):
             }
 
             host_public_key = meca_user.get_host_public_key(host_address)
-            # encrypt
+
+            # Encrypt the input with the host's public key and submit it to the blockchain
             input_hash = encrypt(host_public_key, json.dumps(task_input).encode("utf-8")).hex()
             truncated_input_hash = input_hash[:64]
             success, task_id = meca_user.send_task_on_blockchain(ipfs_sha, host_address, tower_address, truncated_input_hash)
@@ -37,6 +39,7 @@ class MecaUserCLI(MecaCLI):
             tower_url = meca_user.get_tower_public_uri(tower_address) + f"/send_message"
             print(f"Sending encrypted input to the tower at {tower_url}")
 
+            # Send the encrypted input to the tower
             res = requests.post(tower_url, json={"target_client_id": host_address, "task_id": task_id, "message": input_hash})
             if res.status_code != 200:
                 print(f"Failed to send message to tower. Status code: {res.status_code}")

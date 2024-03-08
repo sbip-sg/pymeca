@@ -28,6 +28,7 @@ async def main():
 
     print("Started tower with address:", meca_tower.account.address)
 
+    # Register tower if not registered
     if not meca_tower.is_registered():
         print("\nTower is not registered. Registering...")
         default_size_limit = 10000
