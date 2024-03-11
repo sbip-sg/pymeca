@@ -12,21 +12,24 @@ ACCOUNTS = json.load(open("../../src/config/accounts.json", "r"))
 
 
 class MecaTowerCLI(MecaCLI):
+    def __init__(self):
+        web3 = Web3(Web3.HTTPProvider(BLOCKCHAIN_URL))
+        meca_tower = MecaTower(
+            w3=web3,
+            private_key=ACCOUNTS["meca_tower"]["private_key"],
+            dao_contract_address=DAO_CONTRACT_ADDRESS,
+        )
+        print("Started tower with address:", meca_tower.account.address)
+        super().__init__(meca_tower)
+
     async def run_func(self, func, args):
         print(func.__name__, ":")
         print(await super().run_func(func, args))
 
 
 async def main():
-    web3 = Web3(Web3.HTTPProvider(BLOCKCHAIN_URL))
-
-    meca_tower = MecaTower(
-        w3=web3,
-        private_key=ACCOUNTS["meca_tower"]["private_key"],
-        dao_contract_address=DAO_CONTRACT_ADDRESS,
-    )
-
-    print("Started tower with address:", meca_tower.account.address)
+    cli = MecaTowerCLI()
+    meca_tower = cli.actor
 
     # Register tower if not registered
     if not meca_tower.is_registered():
@@ -45,7 +48,6 @@ async def main():
         meca_tower.register_tower(size_limit, public_connection, fee, fee_type, initial_deposit)
     print("Tower registered.")
 
-    cli = MecaTowerCLI(meca_tower)
     await cli.start()
 
 

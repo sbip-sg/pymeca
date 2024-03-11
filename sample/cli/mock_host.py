@@ -1,13 +1,12 @@
 import asyncio
-import os
+import hashlib
 import pathlib
 from web3 import Web3
 import json
 import websockets
 import requests
-import ipfsApi
+import ipfs_api
 from ecies.utils import generate_eth_key
-from ecies import decrypt
 import docker
 
 import pymeca.utils
@@ -26,41 +25,54 @@ CONTAINER_FOLDER = pathlib.Path("./build")
 CONTAINER_NAME_LIMIT = 10
 DEFAULT_BLOCK_TIMEOUT_LIMIT = 10
 
-ipfs_client = ipfsApi.Client(IPFS_HOST, IPFS_PORT)
-docker_client = docker.from_env()
-
 
 class MecaHostCLI(MecaCLI):
+    def __init__(self):
+        web3 = Web3(Web3.HTTPProvider(BLOCKCHAIN_URL))
+        meca_host = MecaHost(
+            w3=web3,
+            private_key=ACCOUNTS["meca_host"]["private_key"],
+            dao_contract_address=DAO_CONTRACT_ADDRESS,
+        )
+        print("Started host with address:", meca_host.account.address)
+
+        self.docker_client = docker.APIClient()
+        super().__init__(meca_host)
+
     async def run_func(self, func, args):
         if func.__name__ == "add_task":
             ipfs_sha = args[0]
             ipfs_cid = pymeca.utils.cid_from_sha256(ipfs_sha)
 
             # Download IPFS folder in CONTAINER_FOLDER
-            this_dir = os.getcwd()
             CONTAINER_FOLDER.mkdir(exist_ok=True)
-            os.chdir(CONTAINER_FOLDER)
-            ipfs_client.get(ipfs_cid)
+            with ipfs_api.ipfshttpclient.connect(f"/dns/{IPFS_HOST}/tcp/{IPFS_PORT}/http") as client:
+                client.get(ipfs_cid, target=CONTAINER_FOLDER)
             print("Downloaded IPFS folder.")
 
             # Build docker image from IPFS folder
-            docker_client.images.build(path=f"./{ipfs_cid}", tag=f"{ipfs_cid[-CONTAINER_NAME_LIMIT:]}")
+            generator = self.docker_client.build(path=f"./{CONTAINER_FOLDER}/{ipfs_cid}",
+                                                 tag=f"{ipfs_cid[-CONTAINER_NAME_LIMIT:]}",
+                                                 decode=True)
+            while True:
+                try:
+                    line = next(generator)
+                    print(line)
+                except StopIteration:
+                    break
+                except Exception as e:
+                    print(e)
             print("Built docker image.")
-            os.chdir(this_dir)
         print(func.__name__, ":")
         print(await super().run_func(func, args))
 
+    def shutdown(self):
+        self.docker_client.close()
+
 
 async def main():
-    web3 = Web3(Web3.HTTPProvider(BLOCKCHAIN_URL))
-
-    meca_host = MecaHost(
-        w3=web3,
-        private_key=ACCOUNTS["meca_host"]["private_key"],
-        dao_contract_address=DAO_CONTRACT_ADDRESS,
-    )
-
-    print("Started host with address:", meca_host.account.address)
+    cli = MecaHostCLI()
+    meca_host = cli.actor
 
     # Generate asymmetric keys for host decryption and user encryption
     eth_k = generate_eth_key()
@@ -93,19 +105,34 @@ async def main():
         async with websockets.connect(f'ws://{tower_uri}/ws/{host_address}') as websocket:
             print("Waiting for tasks on websocket...")
             while True:
-                message = await websocket.recv()
+                packet = await websocket.recv()
+                json_packet = json.loads(packet)
+                if "taskId" not in json_packet or "message" not in json_packet:
+                    print("Invalid packet received.")
+                    continue
+                task_id = json_packet["taskId"]
+                message_str = json_packet["message"]
 
-                # Decrypt message
-                decrypted_data = json.loads(decrypt(sk_hex, bytes.fromhex(message)).decode("utf-8"))
-                print(f"Received message from server: {decrypted_data}")
-                decrypted_data["id"] = decrypted_data["id"][-CONTAINER_NAME_LIMIT:] + ":latest"
-                
+                # Verify task on blockchain
+                running_task = meca_host.get_running_task(task_id)
+                if running_task is None:
+                    print(f"Task {task_id} not found.")
+                    continue
+                # Verify message input
+                calculated_hash = "0x" + hashlib.sha256(message_str.encode("utf-8")).hexdigest()
+                if running_task["inputHash"] != calculated_hash:
+                    print("Task hash mismatch.")
+                    continue
+
+                print(f"Received message from server: {message_str}")
+                message = json.loads(message_str)
+                message["id"] = message["id"][-CONTAINER_NAME_LIMIT:] + ":latest"
+
                 # Send task to executor
-                res = requests.post(TASK_EXECUTOR_URL, json=decrypted_data)
+                res = requests.post(TASK_EXECUTOR_URL, json=message)
                 print(res.text)
                 await websocket.send(res.text)
 
-    cli = MecaHostCLI(meca_host)
     cli.add_method(wait_for_task)
     cli.add_method(meca_host.get_tasks)
     await cli.start()

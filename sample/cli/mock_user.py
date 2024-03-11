@@ -1,8 +1,8 @@
 import asyncio
+import hashlib
 import requests
 from web3 import Web3
 import json
-from ecies import encrypt
 
 import pymeca.utils
 from pymeca.user import MecaUser
@@ -15,6 +15,16 @@ ACCOUNTS = json.load(open("../../src/config/accounts.json", "r"))
 
 
 class MecaUserCLI(MecaCLI):
+    def __init__(self):
+        web3 = Web3(Web3.HTTPProvider(BLOCKCHAIN_URL))
+        meca_user = MecaUser(
+            w3=web3,
+            private_key=ACCOUNTS["meca_user"]["private_key"],
+            dao_contract_address=DAO_CONTRACT_ADDRESS,
+        )
+        print("Started user with address:", meca_user.account.address)
+        super().__init__(meca_user)
+
     async def run_func(self, func, args):
         if func.__name__ == "send_task_on_blockchain":
             meca_user = self.actor
@@ -23,24 +33,28 @@ class MecaUserCLI(MecaCLI):
             host_address = args[1]
             tower_address = args[2]
             content = args[3]
+            resource = input("Enter resource: ")
             task_input = {
                 "id": ipfs_cid,
                 "input": content,
             }
+            if resource:
+                task_input["resource"] = json.loads(resource)
 
-            host_public_key = meca_user.get_host_public_key(host_address)
+            # Hash the input and submit it to the blockchain
+            input_str = json.dumps(task_input)
+            input_hash = hashlib.sha256(input_str.encode("utf-8")).hexdigest()
+            print(input_str)
+            print(input_hash)
 
-            # Encrypt the input with the host's public key and submit it to the blockchain
-            input_hash = encrypt(host_public_key, json.dumps(task_input).encode("utf-8")).hex()
-            truncated_input_hash = input_hash[:64]
-            success, task_id = meca_user.send_task_on_blockchain(ipfs_sha, host_address, tower_address, truncated_input_hash)
+            success, task_id = meca_user.send_task_on_blockchain(ipfs_sha, host_address, tower_address, input_hash)
             print("Task sent to blockchain.\n")
 
             tower_url = meca_user.get_tower_public_uri(tower_address) + f"/send_message"
             print(f"Sending encrypted input to the tower at {tower_url}")
 
-            # Send the encrypted input to the tower
-            res = requests.post(tower_url, json={"target_client_id": host_address, "task_id": task_id, "message": input_hash})
+            # Send the raw input to the tower
+            res = requests.post(tower_url, json={"taskId": task_id, "message": input_str})
             if res.status_code != 200:
                 print(f"Failed to send message to tower. Status code: {res.status_code}")
                 return
@@ -57,17 +71,8 @@ class MecaUserCLI(MecaCLI):
 
 
 async def main():
-    web3 = Web3(Web3.HTTPProvider(BLOCKCHAIN_URL))
-
-    meca_user = MecaUser(
-        w3=web3,
-        private_key=ACCOUNTS["meca_user"]["private_key"],
-        dao_contract_address=DAO_CONTRACT_ADDRESS,
-    )
-
-    print("Started user with address:", meca_user.account.address)
-
-    cli = MecaUserCLI(meca_user)
+    cli = MecaUserCLI()
+    meca_user = cli.actor
     cli.add_method(meca_user.get_tasks)
     cli.add_method(meca_user.get_towers_hosts_for_task)
     await cli.start()

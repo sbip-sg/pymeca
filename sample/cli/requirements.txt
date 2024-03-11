@@ -1,0 +1,5 @@
+fastapi
+docker
+eciespy
+uvicorn
+IPFS-Toolkit

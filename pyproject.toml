@@ -11,11 +11,6 @@ python = "^3.10"
 web3 = {extras = ["tester"], version = ">=6.15.1"}
 py-solc-x = ">=2.0.2"
 py-multiformats-cid = ">=0.4.4"
-fastapi = "^0.110.0"
-ipfs-api = "^0.2.3"
-docker = "^7.0.0"
-eciespy = "^0.4.1"
-uvicorn = "^0.27.1"
 
 [tool.poetry.dev-dependencies]
 
