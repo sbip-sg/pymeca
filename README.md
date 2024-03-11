@@ -15,18 +15,34 @@ git clone https://github.com/sbip-sg/pymeca.git
 cd pymeca
 git submodule init
 git submodule update --recursive
-pip install .
+pip install poetry
+poetry install
 ```
 
 ## Run tests
 
-Requirements: npm (tested with 8.5.5)
-
+Requirements: poetry
 ```bash
 pip install poetry
 poetry install
-npm install ganache
 ```
+
+Requirements: node.js 20.11.1 and npm (tested with 8.5.5)
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+export NVM_DIR="${HOME}/.nvm" && ."$NVM_DIR/nvm.sh"
+cd meca-contracts/src/ganache && nvm install .nvmrc && nvm use .nvmrc && nvm install-latest-npm && npm install
+```
+
+From the main directory:
+```bash
+poetry shell
+pytest
+```
+
+
+## Usage
+
 
 Launch the ganache test chain in a terminal to watch
 
@@ -57,14 +73,6 @@ python3 ganache.py \
 --tower-failed-task-penalty 100 \
 --task-addition-fee 100
 ```
-
-run pytest in a separate terminal
-
-```bash
-pytest
-```
-
-## Usage
 
 - A sample workflow of how DAO entities interact with each other is provided [here](./sample/sample.py). The sample assumes that a ganache chain launched with the sample commands with [ganache.py](./src/pymeca/scripts/ganache.py) to setup corresponding accounts.
 
