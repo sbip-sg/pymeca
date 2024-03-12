@@ -8,3 +8,5 @@ ipfs daemon
 
 python <script>
 ```
+
+Start meca_executor outside this container too.

@@ -1,5 +1,6 @@
 import asyncio
 import hashlib
+from ecies import encrypt
 import requests
 from web3 import Web3
 import json
@@ -12,6 +13,23 @@ from cli import MecaCLI
 BLOCKCHAIN_URL = "http://localhost:9000"
 DAO_CONTRACT_ADDRESS = get_DAO_ADDRESS()
 ACCOUNTS = json.load(open("../../src/config/accounts.json", "r"))
+
+
+def send_message_to_tower(tower_uri, task_id, message):
+    tower_url = f"{tower_uri}/send_message"
+    res = requests.post(tower_url, json={"taskId": task_id, "message": message})
+    if res.status_code != 200:
+        print(f"Failed to send message to tower. Status code: {res.status_code}")
+        return
+    res_obj = res.json()
+    print(f"Response from tower: {res_obj}")
+    if "message" in res_obj and res_obj["message"]:
+        message = json.loads(res_obj["message"])
+        print(f"Response from host: {message}")
+        return message
+    else:
+        print("No message from host.")
+        return
 
 
 class MecaUserCLI(MecaCLI):
@@ -44,27 +62,16 @@ class MecaUserCLI(MecaCLI):
             # Hash the input and submit it to the blockchain
             input_str = json.dumps(task_input)
             input_hash = hashlib.sha256(input_str.encode("utf-8")).hexdigest()
-            print(input_str)
-            print(input_hash)
 
             success, task_id = meca_user.send_task_on_blockchain(ipfs_sha, host_address, tower_address, input_hash)
-            print("Task sent to blockchain.\n")
+            print(f"Task sent to blockchain: task id: {task_id}\n")
 
-            tower_url = meca_user.get_tower_public_uri(tower_address) + f"/send_message"
+            # Send the encrypted input to the tower
+            tower_url = meca_user.get_tower_public_uri(tower_address)
             print(f"Sending encrypted input to the tower at {tower_url}")
-
-            # Send the raw input to the tower
-            res = requests.post(tower_url, json={"taskId": task_id, "message": input_str})
-            if res.status_code != 200:
-                print(f"Failed to send message to tower. Status code: {res.status_code}")
-                return
-            res_obj = res.json()
-            print(f"Response from tower: {res_obj}")
-            if "message" in res_obj and res_obj["message"]:
-                message = json.loads(res_obj["message"])
-                print(f"Response from host: {message}")
-            else:
-                print("No message from host.")
+            host_public_key = meca_user.get_host_public_key(host_address)
+            input_enc = encrypt(host_public_key, input_str.encode("utf-8")).hex()
+            send_message_to_tower(tower_url, task_id, input_enc)
         else:
             print(func.__name__, ":")
             print(await super().run_func(func, args))
