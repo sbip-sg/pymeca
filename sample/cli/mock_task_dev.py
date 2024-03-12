@@ -9,7 +9,7 @@ from pymeca.task import MecaTaskDeveloper
 from pymeca.dao import get_DAO_ADDRESS
 from cli import MecaCLI
 
-IPFS_HOST = "host.docker.internal"
+IPFS_HOST = "localhost"
 IPFS_PORT = 5001
 BLOCKCHAIN_URL = "http://localhost:9000"
 DAO_CONTRACT_ADDRESS = get_DAO_ADDRESS()

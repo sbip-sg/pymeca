@@ -53,3 +53,10 @@ RUN pip3 install poetry
 RUN poetry config virtualenvs.create false
 
 RUN apt-get install -y python-is-python3
+
+# install IPFS
+RUN apt-get install -y wget
+RUN wget https://github.com/ipfs/kubo/releases/download/v0.27.0/kubo_v0.27.0_linux-amd64.tar.gz
+RUN tar -xvzf kubo_v0.27.0_linux-amd64.tar.gz
+WORKDIR /kubo
+RUN bash install.sh
