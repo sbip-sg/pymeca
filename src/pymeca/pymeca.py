@@ -769,6 +769,25 @@ class MecaActiveActor(MecaActor):
         ).functions.getTowers().call()
         return [tower_from_tuple(tower) for tower in tuple_towers]
 
+    def is_tower_registered(
+        self,
+        address: str
+    ) -> bool:
+        r"""
+        Check if a tower is registered in the system.
+
+        Args:
+            address : The tower address
+
+        Returns:
+            bool : True if the tower is registered, False otherwise
+        """
+        towers_list = self.get_towers()
+        for tower in towers_list:
+            if tower["owner"] == address:
+                return True
+        return False
+
     # task contract functions
     def get_task_addition_fee(
         self

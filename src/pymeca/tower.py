@@ -27,6 +27,19 @@ class MecaTower(pymeca.pymeca.MecaActiveActor):
             dao_contract_address=dao_contract_address
         )
 
+    def is_registered(
+        self
+    ) -> bool:
+        r"""
+        Check if the tower is registered on the blockchain.
+
+        Returns:
+            bool : True if the tower is registered.
+        """
+        return self.is_tower_registered(
+            address=self.account.address
+        )
+
     # getters functions
     def get_pending_hosts(
         self
