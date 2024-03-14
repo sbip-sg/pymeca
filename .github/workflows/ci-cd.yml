@@ -28,6 +28,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: meca-contracts/src/ganache/.nvmrc
+
+      - name: Install the solc with npm
+        run: npm install -g solc
       
       - name: Install the dependency for ganache
         run: npm install
