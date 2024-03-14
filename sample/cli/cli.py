@@ -40,6 +40,9 @@ class MecaCLI:
                     self.shutdown()
                     break
 
+                if choice == "":
+                    continue
+
                 try:
                     func = self.child_methods[int(choice)]
                     params = inspect.signature(func).parameters

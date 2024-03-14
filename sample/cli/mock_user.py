@@ -1,5 +1,7 @@
 import asyncio
+import base64
 import hashlib
+import pathlib
 from ecies import encrypt
 import requests
 from web3 import Web3
@@ -13,6 +15,7 @@ from cli import MecaCLI
 BLOCKCHAIN_URL = "http://localhost:9000"
 DAO_CONTRACT_ADDRESS = get_DAO_ADDRESS()
 ACCOUNTS = json.load(open("../../src/config/accounts.json", "r"))
+OUTPUT_FOLDER = pathlib.Path("./build")
 
 
 def send_message_to_tower(tower_uri, task_id, message):
@@ -22,10 +25,19 @@ def send_message_to_tower(tower_uri, task_id, message):
         print(f"Failed to send message to tower. Status code: {res.status_code}")
         return
     res_obj = res.json()
-    print(f"Response from tower: {res_obj}")
+    # print(f"Response from tower: {res_obj}")
     if "message" in res_obj and res_obj["message"]:
         message = json.loads(res_obj["message"])
-        print(f"Response from host: {message}")
+        if "success" in message and message["success"]:
+            # save to png
+            OUTPUT_FOLDER.mkdir(exist_ok=True)
+            with open(f"{OUTPUT_FOLDER}/output.png", "wb") as f:
+                f.write(base64.b64decode(message['msg']))
+            print("Message result saved to output.png")
+        elif "msg" in message and message["msg"]:
+            print(f"Host failed to process the message. {message['msg']}")
+        else:
+            print("Unexpected message from host.", message)
         return message
     else:
         print("No message from host.")

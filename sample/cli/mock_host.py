@@ -14,8 +14,9 @@ import pymeca.utils
 from pymeca.host import MecaHost
 from pymeca.dao import get_DAO_ADDRESS
 from cli import MecaCLI
+import threading
 
-TASK_EXECUTOR_URL = "http://host.docker.internal:2591"
+TASK_EXECUTOR_URL = "http://172.18.0.255:2591"
 IPFS_HOST = "localhost"
 IPFS_PORT = 8080
 BLOCKCHAIN_URL = "http://localhost:9000"
@@ -53,6 +54,8 @@ def build_docker_image(ipfs_cid):
 
 
 async def wait_for_task(meca_host, tower_uri, sk_hex):
+    if tower_uri.startswith("http://"):
+        tower_uri = tower_uri[len("http://"):]
     host_address = meca_host.account.address
     async with websockets.connect(f'ws://{tower_uri}/ws/{host_address}') as websocket:
         print("Waiting for tasks on websocket...")
@@ -77,13 +80,13 @@ async def wait_for_task(meca_host, tower_uri, sk_hex):
                 print("Task hash mismatch.")
                 continue
 
-            print(f"Received message from server: {message_decrypted_str}")
+            print(f"Received task {task_id} from server")
             message = json.loads(message_decrypted_str)
             message["id"] = message["id"][-CONTAINER_NAME_LIMIT:] + ":latest"
 
             # Send task to executor
             res = requests.post(TASK_EXECUTOR_URL, json=message)
-            print(res.text)
+            print(res.status_code)
             await websocket.send(res.text)
 
 
@@ -137,9 +140,7 @@ async def main():
 
     # Blocking function to wait for tasks from a given tower
     async def wait_for_my_task(tower_uri: str):
-        if tower_uri.startswith("http://"):
-            tower_uri = tower_uri[len("http://"):]
-        await wait_for_task(meca_host, tower_uri, sk_hex)
+        threading.Thread(target=lambda: asyncio.run(wait_for_task(meca_host, tower_uri, sk_hex))).start()
 
     cli.add_method(wait_for_my_task)
     cli.add_method(meca_host.get_tasks)
