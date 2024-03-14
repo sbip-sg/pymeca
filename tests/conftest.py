@@ -81,22 +81,22 @@ def TASK_ADDITION_FEE():
 # the blockchain environment and meca actors and contracts
 @pytest.fixture(scope="session")
 def CLEAN_PORT():
-    return 8545
-
-
-@pytest.fixture(scope="session")
-def SIMPLE_PORT():
     return 8546
 
 
 @pytest.fixture(scope="session")
-def REGISTER_PORT():
+def SIMPLE_PORT():
     return 8547
 
 
 @pytest.fixture(scope="session")
-def FILL_PORT():
+def REGISTER_PORT():
     return 8548
+
+
+@pytest.fixture(scope="session")
+def FILL_PORT():
+    return 8549
 
 
 # the ganache script path

@@ -18,9 +18,27 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Check-out repository
-        uses: actions/checkout@v3
+      - name: Install the solc with apt
+        run: |
+          DEBIAN_FRONTEND=noninteractive sudo add-apt-repository ppa:ethereum/ethereum && \
+          DEBIAN_FRONTEND=noninteractive sudo apt-get update && \
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y solc
 
+      - name: Check-out repository
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+          token: ${{ secrets.PAT_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: meca-contracts/src/ganache/.nvmrc
+      
+      - name: Install the dependency for ganache
+        run: npm install
+        working-directory: meca-contracts/src/ganache
+  
       - name: Install poetry
         uses: snok/install-poetry@v1
 
@@ -34,9 +52,12 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml   # coverage report
-
-      - name: Build documentation
-        run: poetry run make html --directory docs/
+      
+      - name: Get Cover 
+        uses: orgoro/coverage@v3.1
+        with:
+            coverageFile: ./coverage.xml
+            token: ${{ secrets.GITHUB_TOKEN }}
 
   cd:
     permissions:
@@ -45,9 +66,6 @@ jobs:
     
     # Only run this job if the "ci" job passes
     needs: ci
-
-    # Only run this job if new work is pushed to "main"
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     # Set up operating system
     runs-on: ubuntu-latest
@@ -60,7 +78,7 @@ jobs:
           python-version: "3.10"
 
       - name: Check-out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
