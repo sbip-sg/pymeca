@@ -36,7 +36,7 @@ import random
 import os
 import web3
 import argparse
-import pymeca.utils
+import pymeca
 import deploy
 import requests
 
