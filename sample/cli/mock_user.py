@@ -63,13 +63,10 @@ class MecaUserCLI(MecaCLI):
             host_address = args[1]
             tower_address = args[2]
             content = args[3]
-            resource = input("Enter resource: ")
             task_input = {
                 "id": ipfs_cid,
                 "input": content,
             }
-            if resource:
-                task_input["resource"] = json.loads(resource)
 
             # Hash the input and submit it to the blockchain
             input_str = json.dumps(task_input)

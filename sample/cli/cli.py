@@ -44,7 +44,9 @@ class MecaCLI:
                     continue
 
                 try:
+                    print()
                     func = self.child_methods[int(choice)]
+                    print(f"Running {func.__name__}")
                     params = inspect.signature(func).parameters
                     args = []
                     for param_name, param in params.items():

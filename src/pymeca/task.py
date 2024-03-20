@@ -38,7 +38,6 @@ class MecaTaskDeveloper(pymeca.pymeca.MecaActiveActor):
         all_tasks = self.get_tasks()
         my_tasks = []
         for task in all_tasks:
-            print(task)
             if task["owner"] == self.account.address:
                 my_tasks.append(task)
         return my_tasks
