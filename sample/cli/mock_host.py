@@ -14,8 +14,9 @@ import pymeca.utils
 from pymeca.host import MecaHost
 from pymeca.dao import get_DAO_ADDRESS
 from cli import MecaCLI
+import threading
 
-TASK_EXECUTOR_URL = "http://host.docker.internal:2591"
+TASK_EXECUTOR_URL = "http://172.18.0.255:2591"
 IPFS_HOST = "localhost"
 IPFS_PORT = 8080
 BLOCKCHAIN_URL = "http://localhost:9000"
@@ -25,6 +26,10 @@ CONTAINER_FOLDER = pathlib.Path("./build")
 
 CONTAINER_NAME_LIMIT = 10
 DEFAULT_BLOCK_TIMEOUT_LIMIT = 10
+RESOURCES = {
+    "cpu": 16,
+    "mem": 32000,
+}
 
 
 def download_from_ipfs(ipfs_cid):
@@ -53,6 +58,8 @@ def build_docker_image(ipfs_cid):
 
 
 async def wait_for_task(meca_host, tower_uri, sk_hex):
+    if tower_uri.startswith("http://"):
+        tower_uri = tower_uri[len("http://"):]
     host_address = meca_host.account.address
     async with websockets.connect(f'ws://{tower_uri}/ws/{host_address}') as websocket:
         print("Waiting for tasks on websocket...")
@@ -77,13 +84,16 @@ async def wait_for_task(meca_host, tower_uri, sk_hex):
                 print("Task hash mismatch.")
                 continue
 
-            print(f"Received message from server: {message_decrypted_str}")
+            print(f"Received task {task_id} from server")
+            
+            # format task executor request
             message = json.loads(message_decrypted_str)
             message["id"] = message["id"][-CONTAINER_NAME_LIMIT:] + ":latest"
+            message["resource"] = RESOURCES
 
             # Send task to executor
             res = requests.post(TASK_EXECUTOR_URL, json=message)
-            print(res.text)
+            print(res.status_code)
             await websocket.send(res.text)
 
 
@@ -98,6 +108,11 @@ class MecaHostCLI(MecaCLI):
         print("Started host with address:", meca_host.account.address)
         super().__init__(meca_host)
 
+        # Generate asymmetric keys for host decryption and user encryption
+        eth_k = generate_eth_key()
+        self.secret_key = eth_k.to_hex()
+        self.public_key = eth_k.public_key.to_hex()
+
     async def run_func(self, func, args):
         if func.__name__ == "add_task":
             ipfs_sha = args[0]
@@ -111,12 +126,8 @@ class MecaHostCLI(MecaCLI):
 async def main():
     cli = MecaHostCLI()
     meca_host = cli.actor
-
-    # Generate asymmetric keys for host decryption and user encryption
-    eth_k = generate_eth_key()
-    sk_hex = eth_k.to_hex()
-    pk_hex = eth_k.public_key.to_hex()
-    default_public_key = pk_hex
+    sk = cli.secret_key
+    default_public_key = cli.public_key
 
     # Register host if not registered
     if not meca_host.is_registered():
@@ -136,13 +147,13 @@ async def main():
     print("Host registered.")
 
     # Blocking function to wait for tasks from a given tower
-    async def wait_for_my_task(tower_uri: str):
-        if tower_uri.startswith("http://"):
-            tower_uri = tower_uri[len("http://"):]
-        await wait_for_task(meca_host, tower_uri, sk_hex)
+    async def wait_for_my_task(tower_address: str):
+        tower_uri = meca_host.get_tower_public_uri(tower_address)
+        threading.Thread(target=lambda: asyncio.run(wait_for_task(meca_host, tower_uri, sk))).start()
 
     cli.add_method(wait_for_my_task)
     cli.add_method(meca_host.get_tasks)
+    cli.add_method(meca_host.get_towers)
     await cli.start()
 
 

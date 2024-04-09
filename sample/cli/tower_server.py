@@ -1,4 +1,4 @@
-from fastapi import FastAPI, WebSocket, Request
+from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect
 import asyncio
 from web3 import Web3
 import json
@@ -35,6 +35,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             await asyncio.sleep(1)  # Keeps the coroutine running
     except asyncio.CancelledError:
         pass
+    except WebSocketDisconnect as e:
+        print(f"WebSocketDisconnect {e.code}: {e.reason}")
     finally:
         del connected_clients[client_id]
 
