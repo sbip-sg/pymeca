@@ -120,6 +120,7 @@ def running_task_from_tuple(
         {
             "ipfsSha256"
             "inputHash"
+            "outputHash"
             "size"
             "towerAddress"
             "hostAddress"
@@ -129,16 +130,18 @@ def running_task_from_tuple(
             "fee"
         }
     """
+    # raise ValueError(running_task_tuple)
     return {
         "ipfsSha256": "0x" + running_task_tuple[0].hex().strip(),
         "inputHash": "0x" + running_task_tuple[1].hex().strip(),
-        "size": running_task_tuple[2],
-        "towerAddress": running_task_tuple[3],
-        "hostAddress": running_task_tuple[4],
-        "owner": running_task_tuple[5],
-        "startBlock": running_task_tuple[6],
-        "blockTimeout": running_task_tuple[7],
-        "fee": running_task_fee_from_tuple(running_task_tuple[8])
+        "outputHash": "0x" + running_task_tuple[2].hex().strip(),
+        "size": running_task_tuple[3],
+        "towerAddress": running_task_tuple[4],
+        "hostAddress": running_task_tuple[5],
+        "owner": running_task_tuple[6],
+        "startBlock": running_task_tuple[7],
+        "blockTimeout": running_task_tuple[8],
+        "fee": running_task_fee_from_tuple(running_task_tuple[9])
     }
 
 

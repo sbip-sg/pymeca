@@ -110,6 +110,11 @@
                         "type": "bytes32"
                     },
                     {
+                        "internalType": "bytes32",
+                        "name": "outputHash",
+                        "type": "bytes32"
+                    },
+                    {
                         "internalType": "uint256",
                         "name": "size",
                         "type": "uint256"
@@ -236,6 +241,24 @@
             }
         ],
         "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "taskId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "outputHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "registerTaskOutput",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
     },
     {
