@@ -368,6 +368,19 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "taskId",
+                "type": "bytes32"
+            }
+        ],
+        "name": "wrongInputHash",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "stateMutability": "payable",
         "type": "receive"
     }

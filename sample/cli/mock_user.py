@@ -19,7 +19,7 @@ OUTPUT_FOLDER = pathlib.Path("./build")
 
 
 def send_message_to_tower(tower_uri, task_id, message):
-    tower_url = f"{tower_uri}/send_message"
+    tower_url = f"{tower_uri}/send_task"
     res = requests.post(tower_url, json={"taskId": task_id, "message": message})
     if res.status_code != 200:
         print(f"Failed to send message to tower. Status code: {res.status_code}")
@@ -67,6 +67,24 @@ class MecaUserCLI(MecaCLI):
                 "id": ipfs_cid,
                 "input": content,
             }
+            input_bytes = content.encode()
+            # because I set the input in pymeca as a hex string
+            input_hash = hashlib.sha256(input_bytes).hexdigest()
+            success, task_id = meca_user.send_task_on_blockchain(
+                ipfs_sha=ipfs_sha,
+                host_address=host_address,
+                tower_address=tower_address,
+                input_hash=input_hash
+            )
+            tower_url = meca_user.get_tower_public_uri(tower_address)
+            host_public_key = meca_user.get_host_public_key(host_address)
+            encrypted_input_bytes = encrypt(host_public_key, input_bytes)
+            task_id_bytes = meca_user._bytes_from_hex(task_id)
+            to_send = task_id_bytes + encrypted_input_bytes
+            send_message_to_tower(
+                tower_uri=tower_url,
+                message=to_send
+            )
 
             # Hash the input and submit it to the blockchain
             input_str = json.dumps(task_input)
