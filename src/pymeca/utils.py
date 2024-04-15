@@ -449,3 +449,20 @@ def generate_meca_simulate_accounts(
             "balance": hex(web3.Web3.to_wei(initial_balance, "ether"))
         }
     return accounts
+
+def bytes_from_hex(
+    hex_string: str
+) -> bytes:
+    r"""
+    Convert a hex string to bytes. Usseful for making
+    the input for bytesX in the smart contracts
+
+    Args:
+        hex_string : hex string
+
+    Returns:
+        bytes : bytes
+    """
+    if hex_string.startswith("0x"):
+        hex_string = hex_string[2:]
+    return bytes.fromhex(hex_string)

@@ -17,11 +17,26 @@ async def task_handler(websocket):
         await websocket.send(message)
 
 
+async def register_host(websocket):
+    host_address = await websocket.recv()
+    host_address_hex = host_address.hex()
+    print(host_address_hex)
+    HOSTS[host_address_hex] = websocket
+    await websocket.send(host_address)
+    async for message in websocket:
+        print(message)
+        await websocket.send(message)
+    
+    print("s-a deconectat")
+
+
 async def router(websocket, path):
     if path == "/":
         await websocket.send("ghinion")
-    elif path == "/start_task":
+    elif path == "/user":
         await task_handler(websocket)
+    elif path == "/host":
+        await register_host(websocket)
     else:
         await websocket.send("ghinion")
 
@@ -32,7 +47,7 @@ async def main():
     stop = loop.create_future()
     loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
 
-    async with websockets.serve(router, "localhost", 7777):
+    async with websockets.serve(router, "127.0.0.1", 7777):
         await stop
 
 if __name__ == "__main__":

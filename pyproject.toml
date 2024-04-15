@@ -25,6 +25,8 @@ python-semantic-release = "^9.1.1"
 pycryptodome = "^3.20.0"
 websockets = "^12.0"
 eciespy = "^0.4.1"
+fastapi = "^0.110.1"
+uvicorn = {extras = ["standard"], version = "^0.29.0"}
 
 [tool.semantic_release]
 version_toml = [
