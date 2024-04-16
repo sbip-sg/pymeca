@@ -13,7 +13,7 @@ import docker
 import pymeca.utils
 from pymeca.host import MecaHost
 from pymeca.dao import get_DAO_ADDRESS
-from cli import MecaCLI
+from sample.cli import MecaCLI
 import threading
 
 TASK_EXECUTOR_URL = "http://172.18.0.255:2591"

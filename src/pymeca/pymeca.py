@@ -2,6 +2,7 @@ import logging
 from eth_account import Account
 import web3
 import pymeca.utils
+import eth_keys
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,26 @@ class MecaActor():
             transaction=transaction,
             private_key=self.private_key
         )
+
+    def sign_bytes(
+        self,
+        bytes_to_sign: bytes
+    ) -> bytes:
+        r"""
+        Sign the given bytes
+
+        Args:
+            bytes_to_sign : bytes
+
+        Returns:
+            bytes : The signature
+        """
+        signPrivateKeyBytes = eth_keys.keys.PrivateKey(
+            pymeca.utils.bytes_from_hex(
+                self.private_key
+            )
+        )
+        return signPrivateKeyBytes.sign_msg(bytes_to_sign).to_bytes()
 
 
 def task_from_tuple(
@@ -1078,3 +1099,24 @@ class MecaActiveActor(MecaActor):
             )
         ]
         return towers_hosts
+
+    def is_task_done(
+        self,
+        task_id: str
+    ) -> bool:
+        r"""
+        Check if a task is done.
+
+        Args:
+            task_id : The task id
+
+        Returns:
+            bool : True if the task is done, False otherwise
+        """
+        running_task = self.get_running_task(
+            task_id=task_id
+        )
+        return (
+            self.w3.eth.get_block("latest")["number"] >
+            (running_task["startBlock"] + running_task["blockTimeout"])
+        )

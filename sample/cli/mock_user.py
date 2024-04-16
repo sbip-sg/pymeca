@@ -10,7 +10,7 @@ import json
 import pymeca.utils
 from pymeca.user import MecaUser
 from pymeca.dao import get_DAO_ADDRESS
-from cli import MecaCLI
+from sample.cli import MecaCLI
 
 BLOCKCHAIN_URL = "http://localhost:9000"
 DAO_CONTRACT_ADDRESS = get_DAO_ADDRESS()

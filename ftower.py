@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from fastapi import FastAPI, WebSocket, Request, WebSocketDisconnect
 import asyncio
+import pymeca
 
 app = FastAPI()
 
@@ -8,33 +9,49 @@ app = FastAPI()
 connected_tasks = {}
 connected_hosts = {}
 
+
 class ClientConnectionManager:
     def __init__(self):
         self.active_connections: dict[str, tuple[str, WebSocket]] = {}
 
-    async def connect(self, websocket: WebSocket, task_id: str, host_address: str):
+    async def connect(
+        self,
+        websocket: WebSocket,
+        task_id: str,
+        host_address: str
+    ) -> bool:
         await websocket.accept()
         if task_id in self.active_connections:
             websocket.disconnect()
+            return False
         else:
             self.active_connections[task_id] = (host_address, websocket)
+            return True
 
-    def disconnect(self, task_id):
+    def disconnect(self, task_id: str):
         del self.active_connections[task_id]
 
-    async def send_output(seld, task_id: str, host_address: str, output_bytes: bytes):
+    async def send_output(
+        self,
+        task_id: str,
+        host_address: str,
+        output_bytes: bytes
+    ) -> bool:
         if task_id in self.active_connections:
             if self.active_connections[task_id][0] == host_address:
-                await self.active_connections[task_id][1].send_bytes(output_bytes)
+                await self.active_connections[
+                    task_id][1].send_bytes(output_bytes)
                 self.active_connections[task_id][1].disconnect()
                 self.disconnect()
+                return True
+        return False
 
 
-manager = ClientConnectionManager()
+client_manager = ClientConnectionManager()
 
 
 @app.websocket("/client")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint_client(websocket: WebSocket):
     await websocket.accept()
 
     input_bytes = await websocket.receive_bytes()
@@ -43,7 +60,14 @@ async def websocket_endpoint(websocket: WebSocket):
     # task_id = "0x" + "0" * 64
     print(task_id)
     connected_tasks[task_id] = websocket
-    output_bytes = input_bytes[32:]
+    signature = input_bytes[-65:]
+    print(signature)
+    verify = pymeca.utils.verify_signature(
+        signature_bytes=signature,
+        message_bytes=input_bytes[0:-65]
+    )
+    print(verify)
+    output_bytes = input_bytes[32:-65]
     print(output_bytes)
     # output_bytes = input_bytes
     await websocket.send_bytes(output_bytes)
@@ -57,6 +81,7 @@ async def websocket_endpoint(websocket: WebSocket):
         print(f"WebSocketDisconnect {e.code}: {e.reason}")
     finally:
         del connected_tasks[task_id]
+
 
 @app.websocket("/host")
 async def websocket_endpoint(websocket: WebSocket):

@@ -7,7 +7,7 @@ import os
 import pymeca.utils
 from pymeca.task import MecaTaskDeveloper
 from pymeca.dao import get_DAO_ADDRESS
-from cli import MecaCLI
+from sample.cli import MecaCLI
 
 IPFS_HOST = "localhost"
 IPFS_PORT = 5001
