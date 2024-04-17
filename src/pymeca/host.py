@@ -461,3 +461,69 @@ class MecaHost(pymeca.pymeca.MecaActiveActor):
         tx_receipt = self._execute_transaction(transaction)
 
         return tx_receipt.status == 1
+
+    # schedule related functions
+    def register_task_output(
+        self,
+        task_id: str,
+        output_hash: str
+    ) -> bool:
+        r"""
+        Register the output of the task.
+
+        Args:
+            task_id : Task ID.
+            output_hash: the hash of the output of the task
+
+        Returns:
+            bool: if the register was successful
+        """
+        if not self.is_registered():
+            raise pymeca.utils.MecaError(
+                "The host is not registered"
+            )
+        transaction = self.get_scheduler_contract(
+        ).functions.registerTaskOutput(
+            taskId=self._bytes_from_hex(task_id),
+            outputHash=self._bytes_from_hex(output_hash)
+        ).build_transaction({
+            "from": self.account.address,
+            "nonce": self.w3.eth.get_transaction_count(
+                self.account.address
+            )
+        })
+
+        tx_receipt = self._execute_transaction(transaction)
+
+        return tx_receipt.status == 1
+
+    def wrong_input_hash(
+        self,
+        task_id: str
+    ) -> bool:
+        r"""
+        Register the wrong input hash of the task.
+
+        Args:
+            task_id : Task ID.
+
+        Returns:
+            bool: if the register was successful
+        """
+        if not self.is_registered():
+            raise pymeca.utils.MecaError(
+                "The host is not registered"
+            )
+        transaction = self.get_scheduler_contract(
+        ).functions.wrongInputHash(
+            taskId=self._bytes_from_hex(task_id)
+        ).build_transaction({
+            "from": self.account.address,
+            "nonce": self.w3.eth.get_transaction_count(
+                self.account.address
+            )
+        })
+
+        tx_receipt = self._execute_transaction(transaction)
+
+        return tx_receipt.status == 1

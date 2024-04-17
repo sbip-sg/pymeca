@@ -46,6 +46,24 @@ class MecaActor():
             private_key=self.private_key
         )
 
+    def sign_bytes(
+        self,
+        bytes_to_sign: bytes
+    ) -> bytes:
+        r"""
+        Sign the given bytes
+
+        Args:
+            bytes_to_sign : bytes
+
+        Returns:
+            bytes : The signature
+        """
+        return pymeca.utils.sign_bytes(
+            private_key=self.private_key,
+            message_bytes=bytes_to_sign
+        )
+
 
 def task_from_tuple(
     task_tuple: tuple
@@ -120,6 +138,7 @@ def running_task_from_tuple(
         {
             "ipfsSha256"
             "inputHash"
+            "outputHash"
             "size"
             "towerAddress"
             "hostAddress"
@@ -129,16 +148,18 @@ def running_task_from_tuple(
             "fee"
         }
     """
+    # raise ValueError(running_task_tuple)
     return {
         "ipfsSha256": "0x" + running_task_tuple[0].hex().strip(),
         "inputHash": "0x" + running_task_tuple[1].hex().strip(),
-        "size": running_task_tuple[2],
-        "towerAddress": running_task_tuple[3],
-        "hostAddress": running_task_tuple[4],
-        "owner": running_task_tuple[5],
-        "startBlock": running_task_tuple[6],
-        "blockTimeout": running_task_tuple[7],
-        "fee": running_task_fee_from_tuple(running_task_tuple[8])
+        "outputHash": "0x" + running_task_tuple[2].hex().strip(),
+        "size": running_task_tuple[3],
+        "towerAddress": running_task_tuple[4],
+        "hostAddress": running_task_tuple[5],
+        "owner": running_task_tuple[6],
+        "startBlock": running_task_tuple[7],
+        "blockTimeout": running_task_tuple[8],
+        "fee": running_task_fee_from_tuple(running_task_tuple[9])
     }
 
 
@@ -1075,3 +1096,24 @@ class MecaActiveActor(MecaActor):
             )
         ]
         return towers_hosts
+
+    def is_task_done(
+        self,
+        task_id: str
+    ) -> bool:
+        r"""
+        Check if a task is done.
+
+        Args:
+            task_id : The task id
+
+        Returns:
+            bool : True if the task is done, False otherwise
+        """
+        running_task = self.get_running_task(
+            task_id=task_id
+        )
+        return (
+            self.w3.eth.get_block("latest")["number"] >
+            (running_task["startBlock"] + running_task["blockTimeout"])
+        )

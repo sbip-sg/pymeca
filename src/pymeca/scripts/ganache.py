@@ -36,9 +36,9 @@ import random
 import os
 import web3
 import argparse
+import requests
 import pymeca
 import deploy
-import requests
 
 
 logger = logging.getLogger(__name__)

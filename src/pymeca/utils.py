@@ -6,6 +6,7 @@ import json
 import web3
 from solcx import compile_source
 from eth_account import Account
+import eth_keys
 import multiformats_cid
 
 logger = logging.getLogger(__name__)
@@ -449,3 +450,120 @@ def generate_meca_simulate_accounts(
             "balance": hex(web3.Web3.to_wei(initial_balance, "ether"))
         }
     return accounts
+
+
+def bytes_from_hex(
+    hex_string: str
+) -> bytes:
+    r"""
+    Convert a hex string to bytes. Usseful for making
+    the input for bytesX in the smart contracts
+
+    Args:
+        hex_string : hex string
+
+    Returns:
+        bytes : bytes
+    """
+    if hex_string.startswith("0x"):
+        hex_string = hex_string[2:]
+    return bytes.fromhex(hex_string)
+
+
+def verify_signature(
+    message_bytes: bytes,
+    signature_bytes: bytes
+) -> bool:
+    r"""
+    Verify the signature of the message
+
+    Args:
+        message_bytes : message bytes
+        signature_bytes : signature bytes
+
+    Returns:
+        bool : True if the signature is valid, False otherwise
+    """
+    signature = eth_keys.keys.Signature(signature_bytes)
+    public_key = signature.recover_public_key_from_msg(message_bytes)
+    return signature.verify_msg(message_bytes, public_key)
+
+
+def get_public_key_from_signature(
+    message_bytes: bytes,
+    signature_bytes: bytes
+) -> eth_keys.keys.PublicKey:
+    r"""
+    Get the public key from the signature
+
+    Args:
+        message_bytes : message bytes
+        signature_bytes : signature bytes
+
+    Returns:
+        eth_keys.keys.PublicKey : public key
+    """
+    signature = eth_keys.keys.Signature(signature_bytes)
+    return signature.recover_public_key_from_msg(message_bytes)
+
+
+def get_eth_address_hex_from_signature(
+    message_bytes: bytes,
+    signature_bytes: bytes
+) -> str:
+    r"""
+    Get the ethereum address hex from the signature
+
+    Args:
+        message_bytes : message bytes
+        signature_bytes : signature bytes
+
+    Returns:
+        str : ethereum address hex
+    """
+    public_key = get_public_key_from_signature(
+        message_bytes=message_bytes,
+        signature_bytes=signature_bytes
+    )
+    return public_key.to_address()
+
+
+def verify_signature_pub_key(
+    message_bytes: bytes,
+    signature_bytes: bytes,
+    public_key: eth_keys.keys.PublicKey
+) -> bool:
+    r"""
+    Verify the signature using the public key
+
+    Args:
+        signature_bytes : signature bytes
+        public_key_bytes : public key bytes
+
+    Returns:
+        bool : True if the signature is valid, False otherwise
+    """
+    signature = eth_keys.keys.Signature(signature_bytes)
+    return signature.verify_msg(message_bytes, public_key)
+
+
+def sign_bytes(
+    message_bytes: bytes,
+    private_key: str
+) -> bytes:
+    r"""
+    Sign the message bytes using the private key
+
+    Args:
+        message_bytes : message bytes
+        private_key : private key
+
+    Returns:
+        bytes : signature bytes
+    """
+    signPrivateKeyBytes = eth_keys.keys.PrivateKey(
+        bytes_from_hex(
+            private_key
+        )
+    )
+    return signPrivateKeyBytes.sign_msg(message_bytes).to_bytes()

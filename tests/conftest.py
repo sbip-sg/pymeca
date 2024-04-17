@@ -510,7 +510,7 @@ def initial_host_task(initial_task):
     return dict(
         ipfsSha256=initial_task["ipfsSha256"],
         fee=10,
-        blockTimeout=7
+        blockTimeout=1
     )
 
 
