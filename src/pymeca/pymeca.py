@@ -2,7 +2,6 @@ import logging
 from eth_account import Account
 import web3
 import pymeca.utils
-import eth_keys
 
 logger = logging.getLogger(__name__)
 
@@ -60,12 +59,10 @@ class MecaActor():
         Returns:
             bytes : The signature
         """
-        signPrivateKeyBytes = eth_keys.keys.PrivateKey(
-            pymeca.utils.bytes_from_hex(
-                self.private_key
-            )
+        return pymeca.utils.sign_bytes(
+            private_key=self.private_key,
+            message_bytes=bytes_to_sign
         )
-        return signPrivateKeyBytes.sign_msg(bytes_to_sign).to_bytes()
 
 
 def task_from_tuple(

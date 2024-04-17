@@ -22,13 +22,6 @@ sphinx-autoapi = "^3.0.0"
 sphinx-rtd-theme = "^2.0.0"
 jupyterlab = "^4.1.2"
 python-semantic-release = "^9.1.1"
-pycryptodome = "^3.20.0"
-websockets = "^12.0"
-eciespy = "^0.4.1"
-fastapi = "^0.110.1"
-uvicorn = {extras = ["standard"], version = "^0.29.0"}
-ipfs-toolkit = "^0.5.20"
-docker = "^7.0.0"
 
 [tool.semantic_release]
 version_toml = [

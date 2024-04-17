@@ -489,7 +489,7 @@ def verify_signature(
     return signature.verify_msg(message_bytes, public_key)
 
 
-def get_publick_key_from_signature(
+def get_public_key_from_signature(
     message_bytes: bytes,
     signature_bytes: bytes
 ) -> eth_keys.keys.PublicKey:
@@ -521,7 +521,7 @@ def get_eth_address_hex_from_signature(
     Returns:
         str : ethereum address hex
     """
-    public_key = get_publick_key_from_signature(
+    public_key = get_public_key_from_signature(
         message_bytes=message_bytes,
         signature_bytes=signature_bytes
     )
@@ -545,3 +545,25 @@ def verify_signature_pub_key(
     """
     signature = eth_keys.keys.Signature(signature_bytes)
     return signature.verify_msg(message_bytes, public_key)
+
+
+def sign_bytes(
+    message_bytes: bytes,
+    private_key: str
+) -> bytes:
+    r"""
+    Sign the message bytes using the private key
+
+    Args:
+        message_bytes : message bytes
+        private_key : private key
+
+    Returns:
+        bytes : signature bytes
+    """
+    signPrivateKeyBytes = eth_keys.keys.PrivateKey(
+        bytes_from_hex(
+            private_key
+        )
+    )
+    return signPrivateKeyBytes.sign_msg(message_bytes).to_bytes()
