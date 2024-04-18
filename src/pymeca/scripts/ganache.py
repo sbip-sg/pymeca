@@ -296,9 +296,7 @@ def execute_action(
     Args:
         args : CLI arguments.
     """
-    args.endpoint_uri = str(args.host)
-    if args.port:
-        args.endpoint_uri += ":" + str(args.port)
+    args.endpoint_uri = str(args.host) + ":" + str(args.port)
     
     if args.generate_accounts:
         accounts = ganache_accounts()
