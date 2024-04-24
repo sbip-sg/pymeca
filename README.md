@@ -49,8 +49,10 @@ Launch the ganache test chain in a terminal to watch
 ```bash
 cd src/pymeca/scripts
 python3 ganache.py \
+--host http://localhost \
 --port 9000 \
 --ganache-server-script-path ../../../meca-contracts/src/ganache/index.js \
+--generate-accounts \
 --accounts_file_path ../../config/accounts.json \
 --dao-address-file-path ../dao_contract_address.txt \
 --dao-file-path \

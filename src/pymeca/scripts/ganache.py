@@ -5,8 +5,10 @@ and the accounts and dao contract address saved in files.
 
 Example of use:
 python3 ganache.py \
+--host http://localhost \
 --port 9000 \
 --ganache-server-script-path ../../../meca-contracts/src/ganache/index.js \
+--generate-accounts \
 --accounts_file_path ../../config/accounts.json \
 --dao-address-file-path ../dao_contract_address.txt \
 --dao-file-path \
@@ -154,8 +156,11 @@ def get_parser(
         argparse.ArgumentParser : CLI parser.
 
     CLI:
-        ganache.py [-h] [--port PORT]
-            --ganache-server-script-path GANACHE_SERVER_SCRIPT_PATH
+        ganache.py [-h] 
+            [--host HOST]
+            [--port PORT]
+            [--ganache-server-script-path GANACHE_SERVER_SCRIPT_PATH]
+            [--generate-accounts]
             --accounts_file_path ACCOUNTS_FILE_PATH
             [--dao-address-file-path DAO_ADDRESS_FILE_PATH]
             [options]
@@ -188,11 +193,19 @@ def get_parser(
         add_help=True
     )
     parser.add_argument(
+        "--host",
+        dest="host",
+        type=str,
+        default="http://localhost",
+        help="Host, default http://localhost",
+        action="store"
+    )
+    parser.add_argument(
         "--port",
         dest="port",
         type=int,
         default=8545,
-        help="Port",
+        help="Port, default 8545",
         action="store"
     )
     parser.add_argument(
@@ -200,8 +213,14 @@ def get_parser(
         dest="ganache_server_script_path",
         help="Ganache server script path",
         type=str,
-        required=True,
+        required=False,
         action="store"
+    )
+    parser.add_argument(
+        "--generate-accounts",
+        dest="generate_accounts",
+        help="Generate accounts if argument is present",
+        action="store_true"
     )
     parser.add_argument(
         "--accounts_file_path",
@@ -277,23 +296,31 @@ def execute_action(
     Args:
         args : CLI arguments.
     """
-    logger.info("Starting the ganache server")
-    accounts = ganache_accounts()
-    config_dir = os.path.dirname(args.accounts_file_path)
-    os.makedirs(
-        config_dir,
-        exist_ok=True
-    )
-    with open(args.accounts_file_path, "w", encoding="utf-8") as f:
-        json.dump(accounts, f, ensure_ascii=False, indent=4)
+    args.endpoint_uri = str(args.host) + ":" + str(args.port)
+    
+    if args.generate_accounts:
+        accounts = ganache_accounts()
+        config_dir = os.path.dirname(args.accounts_file_path)
+        os.makedirs(
+            config_dir,
+            exist_ok=True
+        )
+        with open(args.accounts_file_path, "w", encoding="utf-8") as f:
+            json.dump(accounts, f, ensure_ascii=False, indent=4)
+    else:
+        with open(args.accounts_file_path, "r") as f:
+            accounts = json.load(f)
+
+    if args.ganache_server_script_path:
+        logger.info("Starting the ganache server")
+        web3_instance, server_process = ganache_web3(
+            accounts=accounts,
+            ganache_server_script_path=args.ganache_server_script_path,
+            port=args.port
+        )
+        logger.info("Ganache server started")
+
     args.private_key = accounts["meca_dao"]["private_key"]
-    web3_instance, server_process = ganache_web3(
-        accounts=accounts,
-        ganache_server_script_path=args.ganache_server_script_path,
-        port=args.port
-    )
-    logger.info("Ganache server started")
-    args.endpoint_uri = "http://localhost:" + str(args.port)
     address = pymeca.dao.init_meca_envirnoment(
         endpoint_uri=args.endpoint_uri,
         private_key=args.private_key,
@@ -324,10 +351,12 @@ def execute_action(
         file.write(address["dao_contract_address"])
     logger.info("DAO contract address:", address["dao_contract_address"])
     logger.info("Contracts deployed")
-    logger.info("Press enter to stop the server")
-    input()
-    server_process.terminate()
-    logger.info("Ganache server stopped")
+
+    if args.ganache_server_script_path:
+        logger.info("Press enter to stop the server")
+        input()
+        server_process.terminate()
+        logger.info("Ganache server stopped")
 
 
 def main():
