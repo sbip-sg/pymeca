@@ -163,6 +163,31 @@ def running_task_from_tuple(
     }
 
 
+def tee_task_from_tuple(
+    tee_task_tuple: tuple
+) -> dict:
+    r"""
+    Transform a tee task tuple from the web3 result in
+    a dictionary
+
+    Args:
+        tee_task_tuple : tee task tuple
+
+    Returns:
+        tee_task : tee task dictionary
+        {
+            "encryptedInputHash"
+            "enclavePublicKey"
+        }
+    """
+    return {
+        "encryptedInputHash": "0x" + tee_task_tuple[0].hex().strip(),
+        "enclavePublicKey": "0x" + "".join([
+            x.hex().strip() for x in tee_task_tuple[1]
+        ]),
+    }
+
+
 def host_from_tuple(
     host_tuple: tuple
 ) -> dict:
@@ -436,6 +461,26 @@ class MecaActiveActor(MecaActor):
             taskId=self._bytes_from_hex(task_id)
         ).call()
         return running_task_from_tuple(tuple_running_task)
+
+    def get_tee_task(
+        self,
+        task_id: str
+    ) -> dict:
+        r"""
+        Get the tee task information for a task which
+        is running on the scheduler.
+
+        Args:
+            task_id : The task id on the scheduler
+
+        Returns:
+            dict : The tee task
+        """
+        tuple_tee_task = self.get_scheduler_contract(
+        ).functions.getTeeTask(
+            taskId=self._bytes_from_hex(task_id)
+        ).call()
+        return tee_task_from_tuple(tuple_tee_task)
 
     # host contract functions
     def get_host_register_fee(
