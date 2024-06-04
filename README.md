@@ -25,6 +25,7 @@ Requirements: poetry
 ```bash
 pip install poetry
 poetry install
+cd ./meca-contracts/src/ganach && npm install
 ```
 
 Requirements: node.js 20.11.1 and npm (tested with 8.5.5)
