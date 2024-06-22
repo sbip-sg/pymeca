@@ -1117,3 +1117,26 @@ class MecaActiveActor(MecaActor):
             self.w3.eth.get_block("latest")["number"] >
             (running_task["startBlock"] + running_task["blockTimeout"])
         )
+    
+    def get_all_executed_tasks(
+        self,
+        address: str,
+    ) -> list:
+        r"""
+        Get all TaskFinished events for a specific user.
+
+        Args:
+            user_address : User address to filter events by.
+            dao_contract_addres : DAO contract address
+
+        Returns:
+            list : A list of TaskFinished events.
+        """
+        contract = self.get_scheduler_contract()
+        event_filter = contract.events.TaskFinished.createFilter(
+            fromBlock=0,
+            toBlock='latest',
+            argument_filters={'owner': address}
+        )
+        events = event_filter.get_all_entries()
+        return [dict(event) for event in events] # returns a list of all TaskFinished events emitted by the scheduler contract
