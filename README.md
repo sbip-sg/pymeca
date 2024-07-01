@@ -25,6 +25,7 @@ Requirements: poetry
 ```bash
 pip install poetry
 poetry install
+cd ./meca-contracts/src/ganach && npm install
 ```
 
 Requirements: node.js 20.11.1 and npm (tested with 8.5.5)
@@ -89,3 +90,4 @@ Interested in contributing? Check out the contributing guidelines. Please note t
 ## Credits
 
 `pymeca` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
+

@@ -2,6 +2,43 @@
 
 
 
+## v0.0.1 (2024-06-12)
+
+### Fix
+
+* fix: readme ([`6bcdcfa`](https://github.com/sbip-sg/pymeca/commit/6bcdcfa54fe66e1c1c35e77c398c284a6e836521))
+
+### Unknown
+
+* add tee task workflow ([`6c19d73`](https://github.com/sbip-sg/pymeca/commit/6c19d73ed07d7af9fa42bf0dcad604d30e08884a))
+
+* Arguments for deploying to different chains (#6)
+
+* Let user choose blockchain endpoint and more args
+
+* Remove check for port arg ([`842d111`](https://github.com/sbip-sg/pymeca/commit/842d1115ad0c8efd3d365e8cda4bb1f4f6d88a35))
+
+* update the poetry.lock ([`8bd40bb`](https://github.com/sbip-sg/pymeca/commit/8bd40bbc92ac8362d56bbb0bcbd307812d84c456))
+
+* Penalty workflow (#5)
+
+* register hash of output
+
+* add some other functionality for mock users
+
+* improve with fast api
+
+* mock  user
+
+* cleaning the repo and remove mock user to be transfer in another repo ([`1c32d3d`](https://github.com/sbip-sg/pymeca/commit/1c32d3de02db3fdd2b1d6149c4888cecdba2f3df))
+
+* Allow multiple tower connections for hosts, Move resource declaration to host (#4)
+
+* Allow multiple tower connections for hosts
+
+* Move resource declaration to host ([`8fe8465`](https://github.com/sbip-sg/pymeca/commit/8fe846566e0f4520614de4a05246f3b8862935fd))
+
+
 ## v0.0.0 (2024-03-14)
 
 ### Unknown

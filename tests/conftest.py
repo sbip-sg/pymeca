@@ -426,11 +426,27 @@ def initial_task(accounts):
 
 
 @pytest.fixture(scope="session")
+def initial_tee_task(accounts):
+    return dict(
+        ipfsSha256="0x" + "2" * 64,
+        owner=Account.from_key(
+            accounts["meca_task"]["private_key"]
+        ).address,
+        fee=10,
+        computingType=2,
+        size=1024,
+        enclavePublicKey="0x" + "3" * 128,
+        encryptedInputHash="0x" + "4" * 64,
+    )
+
+
+@pytest.fixture(scope="session")
 def register_web3(
     simple_web3,
     initial_host,
     initial_tower,
-    initial_task
+    initial_task,
+    initial_tee_task
 ):
     r"""
     Return a function to start a register web3 instance for the
@@ -480,6 +496,13 @@ def register_web3(
             computing_type=initial_task["computingType"],
             size=initial_task["size"]
         )
+        # register the tee task
+        actors["task_developer"].register_task(
+            ipfs_sha256=initial_tee_task["ipfsSha256"],
+            fee=initial_tee_task["fee"],
+            computing_type=initial_tee_task["computingType"],
+            size=initial_tee_task["size"]
+        )
 
         return (w3, server_process, addresses, actors)
 
@@ -514,10 +537,21 @@ def initial_host_task(initial_task):
     )
 
 
+# the initial tee task for the host
+@pytest.fixture(scope="class")
+def initial_host_tee_task(initial_tee_task):
+    return dict(
+        ipfsSha256=initial_tee_task["ipfsSha256"],
+        fee=10,
+        blockTimeout=3,
+    )
+
+
 @pytest.fixture(scope="class")
 def fill_web3(
     register_web3,
-    initial_host_task
+    initial_host_task,
+    initial_host_tee_task
 ):
     r"""
     Using the register environment it creates a flow for running a
@@ -551,6 +585,12 @@ def fill_web3(
             ipfs_sha256=initial_host_task["ipfsSha256"],
             block_timeout=initial_host_task["blockTimeout"],
             fee=initial_host_task["fee"]
+        )
+        # the host add the tee task
+        actors["host"].add_task(
+            ipfs_sha256=initial_host_tee_task["ipfsSha256"],
+            block_timeout=initial_host_tee_task["blockTimeout"],
+            fee=initial_host_tee_task["fee"]
         )
         # the host request to ge tin the tower list
         actors["host"].register_for_tower(

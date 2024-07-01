@@ -112,6 +112,36 @@ class MecaUser(pymeca.pymeca.MecaActiveActor):
 
         return (tx_receipt.status == 1, task_id)
 
+    def register_tee_task_encrypted_input(
+        self,
+        task_id: str,
+        hash_encrypted_input: bytes
+    ) -> bool:
+        r"""
+        Register TEE task encrypted input.
+
+        Args:
+            task_id : Task ID.
+            encrypted_input : Encrypted input.
+
+        Returns:
+            bool : True if the encrypted input was registered successfully.
+        """
+        transaction = self.get_scheduler_contract(
+        ).functions.registerTeeTaskEncryptedInput(
+            taskId=self._bytes_from_hex(task_id),
+            encryptedInputHash=hash_encrypted_input
+        ).build_transaction({
+            "from": self.account.address,
+            "nonce": self.w3.eth.get_transaction_count(
+                self.account.address
+            )
+        })
+
+        tx_receipt = self._execute_transaction(transaction=transaction)
+
+        return tx_receipt.status == 1
+
     def finish_task(
         self,
         task_id: str,

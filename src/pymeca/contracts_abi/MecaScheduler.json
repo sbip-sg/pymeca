@@ -199,6 +199,37 @@
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "taskId",
+                "type": "bytes32"
+            }
+        ],
+        "name": "getTeeTask",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "encryptedInputHash",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "bytes32[2]",
+                        "name": "enclavePublicKey",
+                        "type": "bytes32[2]"
+                    }
+                ],
+                "internalType": "struct MecaSchedulerAbstractContract.TeeTask",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "getTowerContract",
         "outputs": [
@@ -257,6 +288,42 @@
             }
         ],
         "name": "registerTaskOutput",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "taskId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "encryptedInputHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "registerTeeTaskEncryptedInput",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "taskId",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32[2]",
+                "name": "enclavePublicKey",
+                "type": "bytes32[2]"
+            }
+        ],
+        "name": "registerTeeTaskPubKey",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
