@@ -1172,7 +1172,7 @@ class MecaActiveActor(MecaActor):
             list : A list of TaskFinished events.
         """
         contract = self.get_scheduler_contract()
-        event_filter = contract.events.TaskFinished.createFilter(
+        event_filter = contract.events.TaskFinished.create_filter(
             fromBlock=0,
             toBlock='latest',
             argument_filters={'owner': self.account.address}
