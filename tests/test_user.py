@@ -212,9 +212,9 @@ class TestMecaUserTeeTask:
             actors["user"].get_scheduler_fee()
         )
 
-        actors["host"].register_tee_public_key(
+        actors["user"].register_tee_task_initial_input(
             task_id=task_id,
-            tee_public_key=initial_tee_task["enclavePublicKey"]
+            hash_initial_input=initial_tee_task["initialInputHash"]
         )
 
         tee_task = actors["user"].get_tee_task(
@@ -222,8 +222,8 @@ class TestMecaUserTeeTask:
         )
 
         assert (
-            tee_task["enclavePublicKey"] ==
-            initial_tee_task["enclavePublicKey"]
+            tee_task["initialInputHash"] ==
+            initial_tee_task["initialInputHash"]
         )
         assert tee_task["encryptedInputHash"] == "0x" + "0" * 64
 
@@ -237,8 +237,8 @@ class TestMecaUserTeeTask:
         )
 
         assert (
-            tee_task["enclavePublicKey"] ==
-            initial_tee_task["enclavePublicKey"]
+            tee_task["initialInputHash"] ==
+            initial_tee_task["initialInputHash"]
         )
         assert (
             tee_task["encryptedInputHash"] ==
