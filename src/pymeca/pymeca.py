@@ -248,6 +248,44 @@ def tower_from_tuple(
     }
 
 
+def dict_from_event(
+    event: web3.datastructures.AttributeDict
+) -> dict:
+    r"""
+    Transform an event from the web3 result into
+    a dictionary
+
+    Args:
+        event : AttributeDict
+
+    Returns:
+        event : event dictionary
+    """
+    event_dict = dict(event)
+    event_dict["args"] = dict(event_dict["args"])
+    event_dict["transactionHash"] = event_dict["transactionHash"].hex()
+    event_dict["blockHash"] = event_dict["blockHash"].hex()
+    return event_dict
+
+
+def task_finished_from_event(
+    event: web3.datastructures.AttributeDict
+) -> dict:
+    r"""
+    Transform a TaskFinished event from the web3 result into
+    a dictionary
+
+    Args:
+        event : AttributeDict
+
+    Returns:
+        event : event dictionary
+    """
+    event_dict = dict_from_event(event)
+    event_dict["args"]["taskId"] = event_dict["args"]["taskId"].hex()
+    return event_dict    
+
+
 class MecaActiveActor(MecaActor):
     def __init__(
         self,
@@ -1175,7 +1213,8 @@ class MecaActiveActor(MecaActor):
         event_filter = contract.events.TaskFinished.create_filter(
             fromBlock=0,
             toBlock='latest',
-            argument_filters={'owner': self.account.address}
+            argument_filters={'owner': self.account.address.lower()}
         )
         events = event_filter.get_all_entries()
-        return [dict(event) for event in events] # returns a list of all TaskFinished events emitted by the scheduler contract
+        task_finished_events = [task_finished_from_event(event) for event in events]
+        return task_finished_events
