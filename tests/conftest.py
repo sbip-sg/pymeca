@@ -435,7 +435,7 @@ def initial_tee_task(accounts):
         fee=10,
         computingType=2,
         size=1024,
-        enclavePublicKey="0x" + "3" * 128,
+        initialInputHash="0x" + "3" * 64,
         encryptedInputHash="0x" + "4" * 64,
     )
 
