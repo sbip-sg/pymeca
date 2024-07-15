@@ -1,6 +1,18 @@
 # CHANGELOG
 
+## v0.0.2 (2024-07-15)
 
+### Fix
+
+* fix: add the initial input hash for tee tasks inside pymeca (#9)
+
+* add the initial input hash for tee tasks inside pymeca
+
+* bump the meca-contract version
+
+---------
+
+Co-authored-by: hugy718 &lt;hugy718@gmail.com&gt; ([`7db8eba`](https://github.com/sbip-sg/pymeca/commit/7db8eba6515baa82400e2f9ce1f2bddd7c11aa6d))
 
 ## v0.0.1 (2024-06-12)
 
@@ -37,7 +49,6 @@
 * Allow multiple tower connections for hosts
 
 * Move resource declaration to host ([`8fe8465`](https://github.com/sbip-sg/pymeca/commit/8fe846566e0f4520614de4a05246f3b8862935fd))
-
 
 ## v0.0.0 (2024-03-14)
 
