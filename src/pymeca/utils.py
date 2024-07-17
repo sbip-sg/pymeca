@@ -8,6 +8,7 @@ from solcx import compile_source
 from eth_account import Account
 import eth_keys
 import multiformats_cid
+from hexbytes import HexBytes
 
 logger = logging.getLogger(__name__)
 
@@ -567,3 +568,28 @@ def sign_bytes(
         )
     )
     return signPrivateKeyBytes.sign_msg(message_bytes).to_bytes()
+
+
+def dict_from_event(
+    event: web3.datastructures.AttributeDict
+) -> dict:
+    r"""
+    Transform an event from the web3 result into
+    a dictionary
+
+    Args:
+        event : AttributeDict
+
+    Returns:
+        event : event dictionary
+    """
+    event_dict = dict(event)
+    event_dict["args"] = dict(event_dict["args"])
+    for key, val in event_dict.items():
+        if isinstance(val, HexBytes):
+            event_dict[key] = val.hex()
+    for key, val in event_dict["args"].items():
+        if isinstance(val, bytes):
+            event_dict["args"][key] = val.hex()
+
+    return event_dict

@@ -248,44 +248,6 @@ def tower_from_tuple(
     }
 
 
-def dict_from_event(
-    event: web3.datastructures.AttributeDict
-) -> dict:
-    r"""
-    Transform an event from the web3 result into
-    a dictionary
-
-    Args:
-        event : AttributeDict
-
-    Returns:
-        event : event dictionary
-    """
-    event_dict = dict(event)
-    event_dict["args"] = dict(event_dict["args"])
-    event_dict["transactionHash"] = event_dict["transactionHash"].hex()
-    event_dict["blockHash"] = event_dict["blockHash"].hex()
-    return event_dict
-
-
-def task_finished_from_event(
-    event: web3.datastructures.AttributeDict
-) -> dict:
-    r"""
-    Transform a TaskFinished event from the web3 result into
-    a dictionary
-
-    Args:
-        event : AttributeDict
-
-    Returns:
-        event : event dictionary
-    """
-    event_dict = dict_from_event(event)
-    event_dict["args"]["taskId"] = event_dict["args"]["taskId"].hex()
-    return event_dict    
-
-
 class MecaActiveActor(MecaActor):
     def __init__(
         self,
@@ -313,6 +275,10 @@ class MecaActiveActor(MecaActor):
         """
         The DAO contract used to interact with the blockchain
         ecosystem
+        """
+        self.task_finished_events_filter = None
+        """
+        TaskFinished event filter
         """
 
     # helper functions
@@ -1201,20 +1167,22 @@ class MecaActiveActor(MecaActor):
             (running_task["startBlock"] + running_task["blockTimeout"])
         )
     
-    def get_all_executed_tasks(
+    def get_finished_tasks(
         self,
     ) -> list:
         r"""
-        Get all TaskFinished events for a specific user.
+        Get all TaskFinished events.
         Returns:
             list : A list of TaskFinished events.
         """
         contract = self.get_scheduler_contract()
-        event_filter = contract.events.TaskFinished.create_filter(
-            fromBlock=0,
-            toBlock='latest',
-            argument_filters={'owner': self.account.address.lower()}
-        )
-        events = event_filter.get_all_entries()
-        task_finished_events = [task_finished_from_event(event) for event in events]
+        if self.task_finished_events_filter is None:
+            self.task_finished_events_filter = contract.events.TaskFinished.create_filter(
+                fromBlock=0,
+                toBlock='latest',
+            )
+        events = self.task_finished_events_filter.get_all_entries()
+        task_finished_events = [
+            pymeca.utils.dict_from_event(event) for event in events
+        ]
         return task_finished_events

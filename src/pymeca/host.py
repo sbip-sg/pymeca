@@ -30,6 +30,7 @@ class MecaHost(pymeca.pymeca.MecaActiveActor):
         r"""
         If the host is registered in the ecosystem
         """
+        self.task_sent_event_filter = None
 
     # helper functions
     def _bytes_from_hex_public_key(
@@ -561,3 +562,30 @@ class MecaHost(pymeca.pymeca.MecaActiveActor):
         tx_receipt = self._execute_transaction(transaction)
 
         return tx_receipt.status == 1
+
+    def get_received_tasks(
+        self
+    ) -> list:
+        r"""
+        Get all TaskSent events received by the host.
+
+        Returns:
+            list: A list of TaskSent events.
+        """
+        if not self.is_registered():
+            raise pymeca.utils.MecaError(
+                "The host is not registered"
+            )
+        contract = self.get_scheduler_contract()
+        if self.task_sent_event_filter is None:
+            self.task_sent_event_filter = contract.events.TaskSent.create_filter(
+                fromBlock=0,
+                toBlock='latest',
+                argument_filters={'hostAddress': self.account.address.lower()}
+            )
+        
+        events = self.task_sent_event_filter.get_all_entries()
+        sent_tasks = [
+            pymeca.utils.dict_from_event(event) for event in events
+        ]
+        return sent_tasks

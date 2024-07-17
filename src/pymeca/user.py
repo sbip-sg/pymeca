@@ -26,6 +26,10 @@ class MecaUser(pymeca.pymeca.MecaActiveActor):
             private_key=private_key,
             dao_contract_address=dao_contract_address
         )
+        self.task_sent_event_filter = None
+        r"""
+        TaskSent event filter.
+        """
 
     def send_task_on_blockchain(
         self,
@@ -168,3 +172,25 @@ class MecaUser(pymeca.pymeca.MecaActiveActor):
         tx_receipt = self._execute_transaction(transaction=transaction)
 
         return tx_receipt.status == 1
+    
+    def get_sent_tasks(
+        self,
+    ) -> list:
+        r"""
+        Get all TaskSent events for the user.
+        Returns:
+            list : A list of TaskSent events.
+        """
+        contract = self.get_scheduler_contract()
+        if self.task_sent_event_filter is None:
+            self.task_sent_event_filter = contract.events.TaskSent.create_filter(
+                fromBlock=0,
+                toBlock='latest',
+                argument_filters={'sender': self.account.address.lower()}
+            )
+        
+        events = self.task_sent_event_filter.get_all_entries()
+        sent_tasks = [
+            pymeca.utils.dict_from_event(event) for event in events
+        ]
+        return sent_tasks

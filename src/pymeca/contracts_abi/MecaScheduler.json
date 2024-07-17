@@ -10,39 +10,42 @@
             },
             {
                 "indexed": false,
-                "internalType": "uint256",
-                "name": "size",
-                "type": "uint256"
+                "internalType": "bytes32",
+                "name": "outputHash",
+                "type": "bytes32"
             },
             {
+                "components": [
+                    {
+                        "internalType": "uint256",
+                        "name": "tower",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "host",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "scheduler",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "task",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "insurance",
+                        "type": "uint256"
+                    }
+                ],
                 "indexed": false,
-                "internalType": "address",
-                "name": "towerAddress",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "hostAddress",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "startBlock",
-                "type": "uint256"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "blockTimeout",
-                "type": "uint256"
+                "internalType": "struct MecaSchedulerAbstractContract.RunningTaskFee",
+                "name": "fee",
+                "type": "tuple"
             }
         ],
         "name": "TaskFinished",
@@ -56,6 +59,30 @@
                 "internalType": "bytes32",
                 "name": "taskId",
                 "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes32",
+                "name": "ipfsSha256",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes32",
+                "name": "inputHash",
+                "type": "bytes32"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "towerAddress",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "hostAddress",
+                "type": "address"
             },
             {
                 "indexed": false,
