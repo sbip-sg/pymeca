@@ -116,6 +116,36 @@ class MecaUser(pymeca.pymeca.MecaActiveActor):
 
         return (tx_receipt.status == 1, task_id)
 
+    def register_tee_task_initial_input(
+        self,
+        task_id: str,
+        hash_initial_input: bytes
+    ) -> bool:
+        r"""
+        Register TEE task initial input.
+
+        Args:
+            task_id : Task ID.
+            hash_initial_input : hash of the initial input.
+
+        Returns:
+            bool : True if the initial input was registered successfully.
+        """
+        transaction = self.get_scheduler_contract(
+        ).functions.registerTeeTaskInitialInput(
+            taskId=self._bytes_from_hex(task_id),
+            initialInputHash=hash_initial_input
+        ).build_transaction({
+            "from": self.account.address,
+            "nonce": self.w3.eth.get_transaction_count(
+                self.account.address
+            )
+        })
+
+        tx_receipt = self._execute_transaction(transaction=transaction)
+
+        return tx_receipt.status == 1
+
     def register_tee_task_encrypted_input(
         self,
         task_id: str,
@@ -126,7 +156,7 @@ class MecaUser(pymeca.pymeca.MecaActiveActor):
 
         Args:
             task_id : Task ID.
-            encrypted_input : Encrypted input.
+            hash_encrypted_input : Encrypted input.
 
         Returns:
             bool : True if the encrypted input was registered successfully.

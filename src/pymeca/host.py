@@ -529,40 +529,6 @@ class MecaHost(pymeca.pymeca.MecaActiveActor):
 
         return tx_receipt.status == 1
 
-    def register_tee_public_key(
-        self,
-        task_id: str,
-        tee_public_key: str
-    ) -> bool:
-        r"""
-        Register the tee public key of the task.
-
-        Args:
-            task_id : Task ID.
-            tee_public_key: the public key of the tee
-
-        Returns:
-            bool: if the register was successful
-        """
-        if not self.is_registered():
-            raise pymeca.utils.MecaError(
-                "The host is not registered"
-            )
-        transaction = self.get_scheduler_contract(
-        ).functions.registerTeeTaskPubKey(
-            taskId=self._bytes_from_hex(task_id),
-            enclavePublicKey=self._bytes_from_hex_public_key(tee_public_key)
-        ).build_transaction({
-            "from": self.account.address,
-            "nonce": self.w3.eth.get_transaction_count(
-                self.account.address
-            )
-        })
-
-        tx_receipt = self._execute_transaction(transaction)
-
-        return tx_receipt.status == 1
-
     def get_received_tasks(
         self
     ) -> list:

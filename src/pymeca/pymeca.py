@@ -177,14 +177,12 @@ def tee_task_from_tuple(
         tee_task : tee task dictionary
         {
             "encryptedInputHash"
-            "enclavePublicKey"
+            "initialInputHash"
         }
     """
     return {
         "encryptedInputHash": "0x" + tee_task_tuple[0].hex().strip(),
-        "enclavePublicKey": "0x" + "".join([
-            x.hex().strip() for x in tee_task_tuple[1]
-        ]),
+        "initialInputHash": "0x" + tee_task_tuple[1].hex().strip(),
     }
 
 
