@@ -292,9 +292,9 @@
                         "type": "bytes32"
                     },
                     {
-                        "internalType": "bytes32[2]",
-                        "name": "enclavePublicKey",
-                        "type": "bytes32[2]"
+                        "internalType": "bytes32",
+                        "name": "initialInputHash",
+                        "type": "bytes32"
                     }
                 ],
                 "internalType": "struct MecaSchedulerAbstractContract.TeeTask",
@@ -394,12 +394,12 @@
                 "type": "bytes32"
             },
             {
-                "internalType": "bytes32[2]",
-                "name": "enclavePublicKey",
-                "type": "bytes32[2]"
+                "internalType": "bytes32",
+                "name": "initialInputHash",
+                "type": "bytes32"
             }
         ],
-        "name": "registerTeeTaskPubKey",
+        "name": "registerTeeTaskInitialInput",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
