@@ -277,6 +277,10 @@ class MecaActiveActor(MecaActor):
         """
         TaskFinished event filter
         """
+        self.task_sent_events_filter = None
+        """
+        TaskSent event filter
+        """
 
     # helper functions
     def _bytes_from_hex(
@@ -1189,7 +1193,7 @@ class MecaActiveActor(MecaActor):
         task_filters
     ) -> list:
         r"""
-        Get all TaskSent events received by the host.
+        Get filtered TaskSent events.
 
         Returns:
             list: A list of TaskSent events.

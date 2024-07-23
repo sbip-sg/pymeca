@@ -26,10 +26,6 @@ class MecaUser(pymeca.pymeca.MecaActiveActor):
             private_key=private_key,
             dao_contract_address=dao_contract_address
         )
-        self.task_sent_event_filter = None
-        r"""
-        TaskSent event filter.
-        """
 
     def send_task_on_blockchain(
         self,

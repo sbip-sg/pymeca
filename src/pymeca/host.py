@@ -27,10 +27,6 @@ class MecaHost(pymeca.pymeca.MecaActiveActor):
             dao_contract_address=dao_contract_address
         )
         self.registered = None
-        r"""
-        If the host is registered in the ecosystem
-        """
-        self.task_sent_event_filter = None
 
     # helper functions
     def _bytes_from_hex_public_key(
