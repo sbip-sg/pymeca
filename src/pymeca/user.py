@@ -199,7 +199,7 @@ class MecaUser(pymeca.pymeca.MecaActiveActor):
 
         return tx_receipt.status == 1
     
-    def get_sent_tasks(
+    def get_user_sent_tasks(
         self,
     ) -> list:
         r"""
