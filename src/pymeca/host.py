@@ -527,3 +527,20 @@ class MecaHost(pymeca.pymeca.MecaActiveActor):
         tx_receipt = self._execute_transaction(transaction)
 
         return tx_receipt.status == 1
+
+    def get_received_tasks(
+        self
+    ) -> list:
+        r"""
+        Get all TaskSent events received by the host.
+
+        Returns:
+            list: A list of TaskSent events.
+        """
+        if not self.is_registered():
+            raise pymeca.utils.MecaError(
+                "The host is not registered"
+            )
+        return super().get_sent_tasks({'hostAddress': self.account.address.lower()})
+        
+

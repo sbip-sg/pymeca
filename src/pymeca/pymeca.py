@@ -63,8 +63,7 @@ class MecaActor():
             private_key=self.private_key,
             message_bytes=bytes_to_sign
         )
-
-
+    
 def task_from_tuple(
     task_tuple: tuple
 ) -> dict:
@@ -273,6 +272,14 @@ class MecaActiveActor(MecaActor):
         """
         The DAO contract used to interact with the blockchain
         ecosystem
+        """
+        self.task_finished_events_filter = None
+        """
+        TaskFinished event filter
+        """
+        self.task_sent_events_filter = None
+        """
+        TaskSent event filter
         """
 
     # helper functions
@@ -1160,3 +1167,48 @@ class MecaActiveActor(MecaActor):
             self.w3.eth.get_block("latest")["number"] >
             (running_task["startBlock"] + running_task["blockTimeout"])
         )
+    
+    def get_finished_tasks(
+        self,
+    ) -> list:
+        r"""
+        Get all TaskFinished events.
+        Returns:
+            list : A list of TaskFinished events.
+        """
+        contract = self.get_scheduler_contract()
+        if self.task_finished_events_filter is None:
+            self.task_finished_events_filter = contract.events.TaskFinished.create_filter(
+                fromBlock=0,
+                toBlock='latest',
+            )
+        events = self.task_finished_events_filter.get_all_entries()
+        task_finished_events = [
+            pymeca.utils.dict_from_event(event) for event in events
+        ]
+        return task_finished_events
+    
+    def get_sent_tasks(
+        self,
+        task_filters
+    ) -> list:
+        r"""
+        Get filtered TaskSent events.
+
+        Returns:
+            list: A list of TaskSent events.
+        """
+        contract = self.get_scheduler_contract()
+        if self.task_sent_events_filter is None:
+            self.task_sent_events_filter = contract.events.TaskSent.create_filter(
+                fromBlock=0,
+                toBlock='latest',
+                argument_filters=task_filters
+            )
+        
+        events = self.task_sent_events_filter.get_all_entries()
+        sent_tasks = [
+            pymeca.utils.dict_from_event(event) for event in events
+        ]
+        return sent_tasks
+

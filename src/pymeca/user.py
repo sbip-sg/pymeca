@@ -198,3 +198,13 @@ class MecaUser(pymeca.pymeca.MecaActiveActor):
         tx_receipt = self._execute_transaction(transaction=transaction)
 
         return tx_receipt.status == 1
+    
+    def get_user_sent_tasks(
+        self,
+    ) -> list:
+        r"""
+        Get all TaskSent events for the user.
+        Returns:
+            list : A list of TaskSent events.
+        """
+        return super().get_sent_tasks({'sender': self.account.address.lower()})
