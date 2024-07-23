@@ -211,16 +211,4 @@ class MecaUser(pymeca.pymeca.MecaActiveActor):
         Returns:
             list : A list of TaskSent events.
         """
-        contract = self.get_scheduler_contract()
-        if self.task_sent_event_filter is None:
-            self.task_sent_event_filter = contract.events.TaskSent.create_filter(
-                fromBlock=0,
-                toBlock='latest',
-                argument_filters={'sender': self.account.address.lower()}
-            )
-        
-        events = self.task_sent_event_filter.get_all_entries()
-        sent_tasks = [
-            pymeca.utils.dict_from_event(event) for event in events
-        ]
-        return sent_tasks
+        return super().get_sent_tasks({'sender': self.account.address.lower()})

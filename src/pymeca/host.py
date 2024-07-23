@@ -542,16 +542,6 @@ class MecaHost(pymeca.pymeca.MecaActiveActor):
             raise pymeca.utils.MecaError(
                 "The host is not registered"
             )
-        contract = self.get_scheduler_contract()
-        if self.task_sent_event_filter is None:
-            self.task_sent_event_filter = contract.events.TaskSent.create_filter(
-                fromBlock=0,
-                toBlock='latest',
-                argument_filters={'hostAddress': self.account.address.lower()}
-            )
+        return super().get_sent_tasks({'hostAddress': self.account.address.lower()})
         
-        events = self.task_sent_event_filter.get_all_entries()
-        sent_tasks = [
-            pymeca.utils.dict_from_event(event) for event in events
-        ]
-        return sent_tasks
+
