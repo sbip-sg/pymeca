@@ -1,5 +1,58 @@
 # CHANGELOG
 
+## v0.1.0 (2024-07-24)
+
+### Feature
+
+* feat: release ([`1b31821`](https://github.com/sbip-sg/pymeca/commit/1b318213eab6490a3851a079ab8949ef7af09910))
+
+### Unknown
+
+* Use tasksent and taskfinished events on contract (#8)
+
+* Updated submodule url to be relative
+
+* created get_all_executed_tasks function
+
+* git submodule commit update
+
+* Updated git submodule reference
+
+* Apply suggestions from code review
+
+Co-authored-by: Lim Junxue &lt;60027105+LimJunxue@users.noreply.github.com&gt;
+
+* Updated git submodule reference
+
+* Updated git submodule reference
+
+* Updated git submodule reference
+
+* fixed get_all_executed_tasks function
+
+* Fix return type errors from events
+
+* Updated git submodule reference
+
+* Parse and return Task Event results
+
+* Update meca-contracts ref
+
+* Update .gitmodules
+
+* created get_sent_tasks function
+
+* Fix refactor
+
+* Fix refactor
+
+* Update host.py
+
+---------
+
+Co-authored-by: Lim Junxue &lt;60027105+LimJunxue@users.noreply.github.com&gt;
+Co-authored-by: LimJunxue &lt;junxue1@hotmail.com&gt; ([`d0de746`](https://github.com/sbip-sg/pymeca/commit/d0de74632e6aa147d82bebf33e1dd1d05c919886))
+
 ## v0.0.2 (2024-07-15)
 
 ### Fix
