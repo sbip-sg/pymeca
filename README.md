@@ -25,14 +25,14 @@ Requirements: poetry
 ```bash
 pip install poetry
 poetry install
-cd ./meca-contracts/src/ganach && npm install
+cd ./mecanywhere_contracts/src/ganach && npm install
 ```
 
 Requirements: node.js 20.11.1 and npm (tested with 8.5.5)
 ```bash
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 export NVM_DIR="${HOME}/.nvm" && ."$NVM_DIR/nvm.sh"
-cd meca-contracts/src/ganache && nvm install .nvmrc && nvm use .nvmrc && nvm install-latest-npm && npm install
+cd mecanywhere_contracts/src/ganache && nvm install .nvmrc && nvm use .nvmrc && nvm install-latest-npm && npm install
 ```
 
 From the main directory:
@@ -52,20 +52,20 @@ cd src/pymeca/scripts
 python3 ganache.py \
 --host http://localhost \
 --port 9000 \
---ganache-server-script-path ../../../meca-contracts/src/ganache/index.js \
+--ganache-server-script-path ../../../mecanywhere_contracts/src/ganache/index.js \
 --generate-accounts \
 --accounts_file_path ../../config/accounts.json \
 --dao-address-file-path ../dao_contract_address.txt \
 --dao-file-path \
-../../../meca-contracts/src/contracts/MecaContract.sol \
+../../../mecanywhere_contracts/src/contracts/MecaContract.sol \
 --scheduler-file-path \
-../../../meca-contracts/src/contracts/SchedulerContract.sol \
+../../../mecanywhere_contracts/src/contracts/SchedulerContract.sol \
 --host-file-path \
-../../../meca-contracts/src/contracts/HostContract.sol \
+../../../mecanywhere_contracts/src/contracts/HostContract.sol \
 --tower-file-path \
-../../../meca-contracts/src/contracts/TowerContract.sol \
+../../../mecanywhere_contracts/src/contracts/TowerContract.sol \
 --task-file-path \
-../../../meca-contracts/src/contracts/TaskContract.sol \
+../../../mecanywhere_contracts/src/contracts/TaskContract.sol \
 --scheduler-fee 100 \
 --host-register-fee 100 \
 --host-initial-stake 100 \

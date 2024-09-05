@@ -20,7 +20,7 @@ python deploy.py \
 --task-addition-fee 100 \
 contract \
 --contract-file-path \
-../../../meca-contracts/src/contracts/MecaContract.sol \
+../../../mecanywhere_contracts/src/contracts/MecaContract.sol \
 --contract-name MecaDaoContract \
 --contract-type dao
 2. All contracts
@@ -40,15 +40,15 @@ python deploy.py \
 --task-addition-fee 100 \
 all-contracts \
 --dao-file-path \
-../../../meca-contracts/src/contracts/MecaContract.sol \
+../../../mecanywhere_contracts/src/contracts/MecaContract.sol \
 --scheduler-file-path \
-../../../meca-contracts/src/contracts/SchedulerContract.sol \
+../../../mecanywhere_contracts/src/contracts/SchedulerContract.sol \
 --host-file-path \
-../../../meca-contracts/src/contracts/HostContract.sol \
+../../../mecanywhere_contracts/src/contracts/HostContract.sol \
 --tower-file-path \
-../../../meca-contracts/src/contracts/TowerContract.sol \
+../../../mecanywhere_contracts/src/contracts/TowerContract.sol \
 --task-file-path \
-../../../meca-contracts/src/contracts/TaskContract.sol
+../../../mecanywhere_contracts/src/contracts/TaskContract.sol
 """
 import logging
 import argparse
