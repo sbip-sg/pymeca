@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.1.2 (2024-09-06)
+
+### Fix
+
+* fix: update pyproject.toml ([`b7df8af`](https://github.com/sbip-sg/pymeca/commit/b7df8af2615a9fe9ec4726b44384e5e030dfb8f3))
+
 ## v0.1.1 (2024-09-06)
 
 ### Fix
