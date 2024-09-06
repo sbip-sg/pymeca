@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.1.1 (2024-09-06)
+
+### Fix
+
+* fix: update README.md ([`9256b4d`](https://github.com/sbip-sg/pymeca/commit/9256b4d9ffdf19c81aa8ca5e4d76042041efb7f1))
+
+* fix: rename (#10)
+
+* rename project
+
+* change relative path and the submodule ref
+
+* Update submodule
+
+---------
+
+Co-authored-by: hugy718 &lt;hugy718@gmail.com&gt; ([`8f3c0f4`](https://github.com/sbip-sg/pymeca/commit/8f3c0f448c799b7b88845399e8b98c4f1a7cb079))
+
 ## v0.1.0 (2024-07-24)
 
 ### Feature
