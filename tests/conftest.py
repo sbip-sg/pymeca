@@ -105,7 +105,7 @@ def GANAHE_SERVER_SCRIPT_PATH():
     tests_dir = pathlib.Path(__file__).absolute().parent
     return (
         tests_dir.parent /
-        "meca-contracts" /
+        "mecanywhere_contracts" /
         "src" /
         "ganache" /
         'index.js'
@@ -207,7 +207,7 @@ def clean_setup(
 def CONTRACTS_DIRECTORY():
     return (
         pathlib.Path(__file__).absolute().parent.parent /
-        "meca-contracts" /
+        "mecanywhere_contracts" /
         "src" /
         "contracts"
     ).resolve()

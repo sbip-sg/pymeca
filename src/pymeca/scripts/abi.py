@@ -7,7 +7,7 @@ python abi.py \
 --abi-directory ../contracts_abi \
 contract \
 --contract-file-path \
-../../../meca-contracts/src/contracts/MecaContract.sol \
+../../../mecanywhere_contracts/src/contracts/MecaContract.sol \
 --contract-name MecaDaoContract \
 --contract-type dao
 2. All contracts
@@ -15,19 +15,19 @@ python abi.py \
 --abi-directory ../contracts_abi \
 all-contracts \
 --dao-file-path \
-../../../meca-contracts/src/contracts/MecaContract.sol \
+../../../mecanywhere_contracts/src/contracts/MecaContract.sol \
 --dao-contract-name MecaDaoContract \
 --scheduler-file-path \
-../../../meca-contracts/src/contracts/SchedulerAbstract.sol \
+../../../mecanywhere_contracts/src/contracts/SchedulerAbstract.sol \
 --scheduler-contract-name MecaSchedulerAbstractContract \
 --host-file-path \
-../../../meca-contracts/src/contracts/HostAbstract.sol \
+../../../mecanywhere_contracts/src/contracts/HostAbstract.sol \
 --host-contract-name MecaHostAbstractContract \
 --tower-file-path \
-../../../meca-contracts/src/contracts/TowerAbstract.sol \
+../../../mecanywhere_contracts/src/contracts/TowerAbstract.sol \
 --tower-contract-name MecaTowerAbstractContract \
 --task-file-path \
-../../../meca-contracts/src/contracts/TaskAbstract.sol \
+../../../mecanywhere_contracts/src/contracts/TaskAbstract.sol \
 --task-contract-name MecaTaskAbstractContract
 """
 import pathlib

@@ -7,20 +7,20 @@ Example of use:
 python3 ganache.py \
 --host http://localhost \
 --port 9000 \
---ganache-server-script-path ../../../meca-contracts/src/ganache/index.js \
+--ganache-server-script-path ../../../mecanywhere_contracts/src/ganache/index.js \
 --generate-accounts \
 --accounts_file_path ../../config/accounts.json \
 --dao-address-file-path ../dao_contract_address.txt \
 --dao-file-path \
-../../../meca-contracts/src/contracts/MecaContract.sol \
+../../../mecanywhere_contracts/src/contracts/MecaContract.sol \
 --scheduler-file-path \
-../../../meca-contracts/src/contracts/SchedulerContract.sol \
+../../../mecanywhere_contracts/src/contracts/SchedulerContract.sol \
 --host-file-path \
-../../../meca-contracts/src/contracts/HostContract.sol \
+../../../mecanywhere_contracts/src/contracts/HostContract.sol \
 --tower-file-path \
-../../../meca-contracts/src/contracts/TowerContract.sol \
+../../../mecanywhere_contracts/src/contracts/TowerContract.sol \
 --task-file-path \
-../../../meca-contracts/src/contracts/TaskContract.sol \
+../../../mecanywhere_contracts/src/contracts/TaskContract.sol \
 --scheduler-fee 100 \
 --host-register-fee 100 \
 --host-initial-stake 100 \
