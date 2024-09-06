@@ -1,6 +1,6 @@
 # pymeca
 
-A python package for interacting with the MECA smart contracts
+A python package for interacting with the MECAnywhere smart contracts
 
 ## Installation
 
