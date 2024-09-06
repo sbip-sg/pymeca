@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pymeca"
 version = "0.1.1"
-description = "A middleware python package for interacting with the MECA smart contracts"
+description = "A middleware python package for interacting with the MECAnywhere smart contracts"
 authors = ["Stefan-Dan Ciocirlan (sdcioc)"]
 license = "MIT"
 readme = "README.md"
